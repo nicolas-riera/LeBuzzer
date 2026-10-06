@@ -6,8 +6,69 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send message Google Chat
+      - name: Send Google Chat Notification
+        env:
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
         run: |
+          PAYLOAD=$(jq -n \
+            --arg repo "$REPO" \
+            --arg actor "$ACTOR" \
+            --arg branch "$BRANCH" \
+            --arg msg "$COMMIT_MSG" \
+            --arg url "$COMMIT_URL" \
+            '{
+              cardsV2: [{
+                cardId: "pushNotification",
+                card: {
+                  header: {
+                    title: "New Push Detected",
+                    subtitle: $repo,
+                    imageUrl: "https://github.githubassets.com/assets/GitHub-Mark-ea2971adc38d.png",
+                    imageType: "CIRCLE"
+                  },
+                  sections: [{
+                    widgets: [
+                      {
+                        decoratedText: {
+                          topLabel: "Author",
+                          text: $actor,
+                          startIcon: { knownIcon: "PERSON" }
+                        }
+                      },
+                      {
+                        decoratedText: {
+                          topLabel: "Branch",
+                          text: $branch,
+                          startIcon: { knownIcon: "BOOKMARK" }
+                        }
+                      },
+                      {
+                        decoratedText: {
+                          topLabel: "Commit Message",
+                          text: $msg,
+                          startIcon: { knownIcon: "DESCRIPTION" }
+                        }
+                      },
+                      {
+                        buttonList: {
+                          buttons: [{
+                            text: "View Commit",
+                            onClick: {
+                              openLink: { url: $url }
+                            }
+                          }]
+                        }
+                      }
+                    ]
+                  }]
+                }
+              }]
+            }')
+
           curl -H "Content-Type: application/json" \
-            -d "{\"text\": \"🚀 New push on **${{ github.repository }}** by **${{ github.actor }}**\nCommit : ${{ github.event.head_commit.message }}\"}" \
+            -d "$PAYLOAD" \
             "${{ secrets.GOOGLE_CHAT_WEBHOOK }}"
