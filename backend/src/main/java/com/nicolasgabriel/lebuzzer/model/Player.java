@@ -1,18 +1,18 @@
 package com.nicolasgabriel.lebuzzer.model;
 
-import com.nicolasgabriel.lebuzzer.enums.playerStates;
+import com.nicolasgabriel.lebuzzer.enums.PlayerStates;
 
 public class Player {
     private String id;
     private String sessionId;
     private int score;
-    private playerStates playerStatus;
+    private PlayerStates playerStatus;
 
     public Player(String id, String sessionId) {
         this.id = id;
         this.sessionId = sessionId;
         this.score = 0;
-        this.playerStatus = playerStates.ONLINE;
+        this.playerStatus = PlayerStates.ONLINE;
     }
 
     public String getId() {
@@ -39,11 +39,11 @@ public class Player {
         this.score = score;
     }
 
-    public playerStates getPlayerStatus() {
+    public PlayerStates getPlayerStatus() {
         return playerStatus;
     }
 
-    public void setPlayerStatus(playerStates playerStatus) {
+    public void setPlayerStatus(PlayerStates playerStatus) {
         this.playerStatus = playerStatus;
     }
 }

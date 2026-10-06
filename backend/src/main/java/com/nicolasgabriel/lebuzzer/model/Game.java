@@ -4,25 +4,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nicolasgabriel.lebuzzer.enums.gameStates;
+import com.nicolasgabriel.lebuzzer.enums.GameStates;
 
 public class Game {
     private String gameCode;
-    private gameStates currentState;
+    private GameStates currentState;
     private LocalDateTime questionStartTime;
     private List<Player> playerList;
     private List<Question> questionList;
 
     public Game(String gameCode) {
         this.gameCode = gameCode;
-        this.currentState = gameStates.WAITING;
+        this.currentState = GameStates.WAITING;
         this.playerList = new ArrayList<>();
         this.questionList = new ArrayList<>();
     }
 
     public Game(String gameCode, List<Question> questionList) {
         this.gameCode = gameCode;
-        this.currentState = gameStates.WAITING;
+        this.currentState = GameStates.WAITING;
         this.playerList = new ArrayList<>();
         this.questionList = questionList != null ? questionList : new ArrayList<>();
     }
@@ -35,11 +35,11 @@ public class Game {
         this.gameCode = gameCode;
     }
 
-    public gameStates getCurrentState() {
+    public GameStates getCurrentState() {
         return currentState;
     }
 
-    public void setCurrentState(gameStates currentState) {
+    public void setCurrentState(GameStates currentState) {
         this.currentState = currentState;
     }
 

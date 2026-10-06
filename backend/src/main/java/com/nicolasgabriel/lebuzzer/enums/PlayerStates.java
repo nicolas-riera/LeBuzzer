@@ -1,6 +1,6 @@
 package com.nicolasgabriel.lebuzzer.enums;
 
-public enum playerStates {
+public enum PlayerStates {
     ONLINE,
     OFFLINE
 }
