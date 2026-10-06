@@ -2,29 +2,53 @@ package com.nicolasgabriel.lebuzzer.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.nicolasgabriel.lebuzzer.enums.GameStates;
 
 public class Game {
     private String gameCode;
+    private String hostToken;
     private GameStates currentState;
     private LocalDateTime questionStartTime;
+    private int currentQuestionIndex;
     private List<Player> playerList;
     private List<Question> questionList;
+    private Map<String, PlayerAnswer> currentAnswers;
 
     public Game(String gameCode) {
-        this.gameCode = gameCode;
-        this.currentState = GameStates.WAITING;
-        this.playerList = new ArrayList<>();
-        this.questionList = new ArrayList<>();
+        this(gameCode, null);
     }
 
     public Game(String gameCode, List<Question> questionList) {
         this.gameCode = gameCode;
         this.currentState = GameStates.WAITING;
+        this.currentQuestionIndex = -1;
         this.playerList = new ArrayList<>();
         this.questionList = questionList != null ? questionList : new ArrayList<>();
+        this.currentAnswers = new HashMap<>();
+    }
+
+    public String getHostToken() {
+        return hostToken;
+    }
+
+    public void setHostToken(String hostToken) {
+        this.hostToken = hostToken;
+    }
+
+    public int getCurrentQuestionIndex() {
+        return currentQuestionIndex;
+    }
+
+    public void setCurrentQuestionIndex(int currentQuestionIndex) {
+        this.currentQuestionIndex = currentQuestionIndex;
+    }
+
+    public Map<String, PlayerAnswer> getCurrentAnswers() {
+        return currentAnswers;
     }
 
     public String getGameCode() {
