@@ -5,23 +5,17 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.nicolasgabriel.lebuzzer.dto.GameSnapshot;
-import com.nicolasgabriel.lebuzzer.dto.LeaderboardEntry;
 import com.nicolasgabriel.lebuzzer.dto.QuestionView;
 import com.nicolasgabriel.lebuzzer.enums.GameStates;
 import com.nicolasgabriel.lebuzzer.enums.PlayerStates;
@@ -33,24 +27,26 @@ import com.nicolasgabriel.lebuzzer.model.QuestionCatalog;
 
 @Service
 public class BuzzerService {
+
     private static final String CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final int CODE_LENGTH = 5;
     private static final int QUESTIONS_PER_GAME = 10;
-    private static final int BASE_POINTS = 500;
-    private static final int MAX_SPEED_BONUS = 500;
 
     private final Map<String, Game> games = new ConcurrentHashMap<>();
     private final Map<String, String> gameCodeBySessionId = new ConcurrentHashMap<>();
-    private final Map<String, ScheduledFuture<?>> expirationTasks = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    private final ScoringService scoringService;
+    private final GameSchedulerService schedulerService;
+    private final SimpMessagingTemplate messagingTemplate;
     private final SecureRandom random = new SecureRandom();
 
-    private volatile Consumer<String> questionExpiredListener = code -> { };
-
-    public void setQuestionExpiredListener(Consumer<String> listener) {
-        this.questionExpiredListener = listener;
+    public BuzzerService(ScoringService scoringService,
+                         GameSchedulerService schedulerService,
+                         SimpMessagingTemplate messagingTemplate) {
+        this.scoringService = scoringService;
+        this.schedulerService = schedulerService;
+        this.messagingTemplate = messagingTemplate;
     }
-
 
     public Game createGame() {
         List<Question> questions = new ArrayList<>(QuestionCatalog.getAllQuestions());
@@ -61,6 +57,7 @@ public class BuzzerService {
         do {
             game = new Game(generateCode(), questions);
         } while (games.putIfAbsent(game.getGameCode(), game) != null);
+
         game.setHostToken(UUID.randomUUID().toString());
         return game;
     }
@@ -83,7 +80,10 @@ public class BuzzerService {
             game.setCurrentState(GameStates.QUIZZING);
 
             Question question = game.getQuestionList().get(nextIndex);
-            scheduleExpiration(game, question);
+            schedulerService.scheduleQuestionExpiration(gameCode, question.getDurationInSeconds(),
+                    () -> onQuestionExpired(gameCode, nextIndex));
+
+            notifyGameUpdate(gameCode);
             return question;
         }
     }
@@ -95,31 +95,9 @@ public class BuzzerService {
             if (!closeQuestionLocked(game)) {
                 throw new IllegalStateException("No question in progress");
             }
+            notifyGameUpdate(gameCode);
         }
     }
-
-    public void showLeaderboard(String gameCode, String hostToken) {
-        Game game = requireGame(gameCode);
-        synchronized (game) {
-            requireHost(game, hostToken);
-            if (game.getCurrentState() != GameStates.QUIZ_RESULTS) {
-                throw new IllegalStateException("Leaderboard is available after a question is closed");
-            }
-            game.setCurrentState(GameStates.LEADERBOARD);
-        }
-    }
-
-    public void finishGame(String gameCode, String hostToken) {
-        Game game = requireGame(gameCode);
-        synchronized (game) {
-            requireHost(game, hostToken);
-            if (game.getCurrentState() == GameStates.QUIZZING) {
-                closeQuestionLocked(game);
-            }
-            game.setCurrentState(GameStates.FINISHED);
-        }
-    }
-
 
     public Player joinGame(String gameCode, String nickname, String sessionId) {
         Game game = requireGame(gameCode);
@@ -146,6 +124,7 @@ public class BuzzerService {
                 game.getPlayerList().add(player);
             }
             gameCodeBySessionId.put(sessionId, game.getGameCode());
+            notifyGameUpdate(gameCode);
             return player;
         }
     }
@@ -163,7 +142,7 @@ public class BuzzerService {
                 return false;
             }
             if (game.getCurrentAnswers().containsKey(player.getId())) {
-                return false; 
+                return false;
             }
             List<Integer> indices = selectedIndices == null ? List.of() : selectedIndices;
             for (Integer index : indices) {
@@ -173,6 +152,8 @@ public class BuzzerService {
             }
             game.getCurrentAnswers().put(player.getId(),
                     new PlayerAnswer(player.getId(), question.getId(), new ArrayList<>(new HashSet<>(indices))));
+
+            notifyGameUpdate(gameCode);
             return true;
         }
     }
@@ -188,10 +169,10 @@ public class BuzzerService {
         }
         synchronized (game) {
             findPlayerBySession(game, sessionId).ifPresent(p -> p.setPlayerStatus(PlayerStates.OFFLINE));
+            notifyGameUpdate(gameCode);
         }
         return Optional.of(gameCode);
     }
-
 
     public GameSnapshot getSnapshot(String gameCode) {
         Game game = requireGame(gameCode);
@@ -210,39 +191,11 @@ public class BuzzerService {
                     remaining,
                     game.getCurrentAnswers().size(),
                     correct,
-                    buildLeaderboard(game));
+                    scoringService.buildLeaderboard(game));
         }
     }
 
-    public List<LeaderboardEntry> getLeaderboard(String gameCode) {
-        Game game = requireGame(gameCode);
-        synchronized (game) {
-            return buildLeaderboard(game);
-        }
-    }
-
-    public QuestionView getCurrentQuestionView(String gameCode) {
-        Game game = requireGame(gameCode);
-        synchronized (game) {
-            return toView(currentQuestion(game));
-        }
-    }
-
-    public Optional<Game> findGame(String gameCode) {
-        return Optional.ofNullable(gameCode).map(games::get);
-    }
-
-
-    private void scheduleExpiration(Game game, Question question) {
-        cancelExpiration(game.getGameCode());
-        String code = game.getGameCode();
-        int expectedIndex = game.getCurrentQuestionIndex();
-        ScheduledFuture<?> task = scheduler.schedule(() -> onExpiration(code, expectedIndex),
-                question.getDurationInSeconds(), TimeUnit.SECONDS);
-        expirationTasks.put(code, task);
-    }
-
-    private void onExpiration(String gameCode, int questionIndex) {
+    private void onQuestionExpired(String gameCode, int questionIndex) {
         Game game = games.get(gameCode);
         if (game == null) {
             return;
@@ -252,14 +205,7 @@ public class BuzzerService {
             closed = game.getCurrentQuestionIndex() == questionIndex && closeQuestionLocked(game);
         }
         if (closed) {
-            questionExpiredListener.accept(gameCode);
-        }
-    }
-
-    private void cancelExpiration(String gameCode) {
-        ScheduledFuture<?> task = expirationTasks.remove(gameCode);
-        if (task != null) {
-            task.cancel(false);
+            notifyGameUpdate(gameCode);
         }
     }
 
@@ -267,26 +213,20 @@ public class BuzzerService {
         if (game.getCurrentState() != GameStates.QUIZZING) {
             return false;
         }
-        cancelExpiration(game.getGameCode());
+        schedulerService.cancelExpiration(game.getGameCode());
         Question question = currentQuestion(game);
         for (Player player : game.getPlayerList()) {
             PlayerAnswer answer = game.getCurrentAnswers().get(player.getId());
             if (answer != null) {
-                player.setScore(player.getScore() + computePoints(game, question, answer));
+                player.setScore(player.getScore() + scoringService.computePoints(game, question, answer));
             }
         }
         game.setCurrentState(GameStates.QUIZ_RESULTS);
         return true;
     }
 
-    private int computePoints(Game game, Question question, PlayerAnswer answer) {
-        if (!new HashSet<>(answer.getSelectedOptionIndices()).equals(new HashSet<>(question.getCorrectAnswerIndices()))) {
-            return 0;
-        }
-        long durationMillis = question.getDurationInSeconds() * 1000L;
-        long elapsed = Duration.between(game.getQuestionStartTime(), answer.getTimestamp()).toMillis();
-        long remaining = Math.max(0, Math.min(durationMillis, durationMillis - elapsed));
-        return BASE_POINTS + (int) (MAX_SPEED_BONUS * remaining / durationMillis);
+    private void notifyGameUpdate(String gameCode) {
+        messagingTemplate.convertAndSend("/topic/game/" + gameCode, getSnapshot(gameCode));
     }
 
     private long remainingMillis(Game game, Question question) {
@@ -308,21 +248,6 @@ public class BuzzerService {
                 .filter(p -> p.getPlayerStatus() == PlayerStates.ONLINE)
                 .map(Player::getId)
                 .toList();
-    }
-
-    private List<LeaderboardEntry> buildLeaderboard(Game game) {
-        List<Player> sorted = game.getPlayerList().stream()
-                .sorted(Comparator.comparingInt(Player::getScore).reversed())
-                .toList();
-        List<LeaderboardEntry> entries = new ArrayList<>();
-        for (int i = 0; i < sorted.size(); i++) {
-            Player player = sorted.get(i);
-            int rank = (i > 0 && sorted.get(i - 1).getScore() == player.getScore())
-                    ? entries.get(i - 1).rank()
-                    : i + 1;
-            entries.add(new LeaderboardEntry(rank, player.getId(), player.getScore()));
-        }
-        return entries;
     }
 
     private Optional<Player> findPlayerBySession(Game game, String sessionId) {
