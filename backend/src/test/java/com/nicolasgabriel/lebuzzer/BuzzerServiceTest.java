@@ -47,7 +47,7 @@ class BuzzerServiceTest {
         Game game = buzzerService.createGame();
 
         assertThrows(IllegalStateException.class,
-                () -> buzzerService.joinGame(game.getGameCode(), "Alice", "player-session"));
+                () -> buzzerService.joinGame(game.getGameCode(), "Alice", "alice-token", "player-session"));
         assertFalse(buzzerService.getSnapshot(game.getGameCode()).hostConnected());
     }
 
@@ -56,7 +56,7 @@ class BuzzerServiceTest {
         Game game = buzzerService.createGame();
         buzzerService.connectHost(game.getGameCode(), game.getHostToken(), "host-session");
 
-        buzzerService.joinGame(game.getGameCode(), "Alice", "player-session");
+        buzzerService.joinGame(game.getGameCode(), "Alice", "alice-token", "player-session");
 
         assertTrue(buzzerService.getSnapshot(game.getGameCode()).hostConnected());
         assertEquals(List.of("Alice"), buzzerService.getSnapshot(game.getGameCode()).onlinePlayers());
@@ -103,6 +103,107 @@ class BuzzerServiceTest {
     }
 
     @Test
+    void shouldKeepOnlyTheFirstAnswerOfAPlayer() {
+        Game game = startedGameWithPlayers("Alice");
+        String code = game.getGameCode();
+        List<Integer> correct = game.getQuestionList().get(0).getCorrectAnswerIndices();
+        List<Integer> wrong = List.of(correct.contains(0) ? 1 : 0);
+
+        assertTrue(buzzerService.submitAnswer(code, "Alice-session", wrong));
+        assertFalse(buzzerService.submitAnswer(code, "Alice-session", correct));
+        buzzerService.closeQuestion(code, game.getHostToken());
+
+        assertEquals(1, buzzerService.getSnapshot(code).answeredCount());
+        assertEquals(0, buzzerService.getSnapshot(code).leaderboard().get(0).score());
+    }
+
+    @Test
+    void shouldRemovePlayerFromOnlineListWithoutStoppingTheGame() {
+        Game game = startedGameWithPlayers("Alice", "Bob");
+        String code = game.getGameCode();
+
+        buzzerService.disconnect("Alice-session");
+
+        GameSnapshot snapshot = buzzerService.getSnapshot(code);
+        assertEquals(List.of("Bob"), snapshot.onlinePlayers());
+        assertEquals(GameStates.QUIZZING, snapshot.state());
+        assertTrue(buzzerService.submitAnswer(code, "Bob-session", List.of(0)));
+    }
+
+    @Test
+    void shouldKeepTwoGamesIsolated() {
+        Game first = startedGameWithPlayers("Alice");
+        Game second = startedGameWithPlayers("Bob");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> buzzerService.submitAnswer(second.getGameCode(), "Alice-session", List.of(0)));
+        assertThrows(SecurityException.class,
+                () -> buzzerService.closeQuestion(second.getGameCode(), first.getHostToken()));
+        assertEquals(List.of("Alice"), buzzerService.getSnapshot(first.getGameCode()).onlinePlayers());
+        assertEquals(List.of("Bob"), buzzerService.getSnapshot(second.getGameCode()).onlinePlayers());
+        assertEquals(0, buzzerService.getSnapshot(second.getGameCode()).answeredCount());
+    }
+
+    @Test
+    void shouldLetAPlayerJoinDuringAQuestionAndSeeTheCurrentState() {
+        Game game = startedGameWithPlayers("Alice");
+        String code = game.getGameCode();
+
+        buzzerService.joinGame(code, "Late", "late-token", "late-session");
+
+        GameSnapshot snapshot = buzzerService.getSnapshot(code);
+        assertEquals(GameStates.QUIZZING, snapshot.state());
+        assertNotNull(snapshot.currentQuestion());
+        assertTrue(snapshot.remainingMillis() > 0);
+        assertEquals(2, snapshot.leaderboard().size());
+        assertTrue(buzzerService.submitAnswer(code, "late-session", List.of(0)));
+    }
+
+    @Test
+    void shouldResumeWithTokenEvenIfOldConnectionIsStillOnline() {
+        Game game = startedGameWithPlayers("Alice");
+        String code = game.getGameCode();
+
+        buzzerService.joinGame(code, "Alice", "Alice-token", "Alice-new-session");
+
+        assertEquals(List.of("Alice"), buzzerService.getSnapshot(code).onlinePlayers());
+        assertTrue(buzzerService.submitAnswer(code, "Alice-new-session", List.of(0)));
+        assertTrue(buzzerService.disconnect("Alice-session").isEmpty());
+    }
+
+    @Test
+    void shouldRefuseNicknameWithoutTheRightToken() {
+        Game game = startedGameWithPlayers("Alice");
+        String code = game.getGameCode();
+
+        assertThrows(IllegalStateException.class,
+                () -> buzzerService.joinGame(code, "alice", "other-token", "intruder-session"));
+        buzzerService.disconnect("Alice-session");
+        assertThrows(IllegalStateException.class,
+                () -> buzzerService.joinGame(code, "Alice", "other-token", "intruder-session"));
+    }
+
+    @Test
+    void shouldIncreaseSnapshotSequence() {
+        Game game = buzzerService.createGame();
+
+        long first = buzzerService.getSnapshot(game.getGameCode()).sequence();
+        long second = buzzerService.getSnapshot(game.getGameCode()).sequence();
+
+        assertTrue(second > first);
+    }
+
+    private Game startedGameWithPlayers(String... nicknames) {
+        Game game = buzzerService.createGame();
+        buzzerService.connectHost(game.getGameCode(), game.getHostToken(), game.getGameCode() + "-host");
+        for (String nickname : nicknames) {
+            buzzerService.joinGame(game.getGameCode(), nickname, nickname + "-token", nickname + "-session");
+        }
+        buzzerService.startNextQuestion(game.getGameCode(), game.getHostToken());
+        return game;
+    }
+
+    @Test
     void shouldRefuseHostConnectionWithWrongToken() {
         Game game = buzzerService.createGame();
 
@@ -117,7 +218,7 @@ class BuzzerServiceTest {
         service.setGameClosedListener(code -> closed.countDown());
         Game game = service.createGame();
         service.connectHost(game.getGameCode(), game.getHostToken(), "host-session");
-        service.joinGame(game.getGameCode(), "Alice", "player-session");
+        service.joinGame(game.getGameCode(), "Alice", "alice-token", "player-session");
 
         service.disconnect("host-session");
 

@@ -154,7 +154,7 @@ public class BuzzerService {
         }
     }
 
-    public Player joinGame(String gameCode, String nickname, String sessionId) {
+    public Player joinGame(String gameCode, String nickname, String token, String sessionId) {
         Game game = requireGame(gameCode);
         String cleanNickname = nickname == null ? "" : nickname.trim();
         if (cleanNickname.isEmpty() || cleanNickname.length() > 20) {
@@ -164,21 +164,22 @@ public class BuzzerService {
             if (game.getCurrentState() == GameStates.FINISHED) {
                 throw new IllegalStateException("Game is finished");
             }
-            if (game.getHostSessionId() == null) {
+            Optional<Player> existing = findPlayerByNickname(game, cleanNickname);
+            boolean resuming = existing.isPresent() && token != null && token.equals(existing.get().getToken());
+            if (!resuming && game.getHostSessionId() == null) {
                 throw new IllegalStateException("The host is not connected");
             }
-            Optional<Player> existing = findPlayerByNickname(game, cleanNickname);
             Player player;
             if (existing.isPresent()) {
                 player = existing.get();
-                if (player.getPlayerStatus() == PlayerStates.ONLINE) {
+                if (!resuming && (player.getPlayerStatus() == PlayerStates.ONLINE || player.getToken() != null)) {
                     throw new IllegalStateException("Nickname already taken");
                 }
                 gameCodeBySessionId.remove(player.getSessionId());
                 player.setSessionId(sessionId);
                 player.setPlayerStatus(PlayerStates.ONLINE);
             } else {
-                player = new Player(cleanNickname, sessionId);
+                player = new Player(cleanNickname, sessionId, token);
                 game.getPlayerList().add(player);
             }
             gameCodeBySessionId.put(sessionId, game.getGameCode());
@@ -252,7 +253,8 @@ public class BuzzerService {
                     game.getCurrentAnswers().size(),
                     correct,
                     buildLeaderboard(game),
-                    game.getHostSessionId() != null);
+                    game.getHostSessionId() != null,
+                    game.nextSnapshotSequence());
         }
     }
 

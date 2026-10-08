@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import ConnectionNotice from "../../components/ConnectionNotice";
 import Header from "../../components/Header";
 import { useHost } from "../../context/HostContext";
 import { useHostNavigation } from "../../hooks/useGameNavigation";
@@ -10,6 +11,7 @@ export default function CreateQuizz() {
         game,
         snapshot,
         connected,
+        connectionLost,
         error,
         roomClosed,
         openRoom,
@@ -129,6 +131,10 @@ export default function CreateQuizz() {
                     </>
                 )}
             </div>
+
+            {connectionLost && (
+                <ConnectionNotice message="Connection lost, reconnecting… The room closes if you stay away too long." />
+            )}
         </main>
     );
 }

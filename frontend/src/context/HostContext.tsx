@@ -22,11 +22,13 @@ import {
 } from "../services/gameSocket";
 import type { HostAction } from "../services/gameSocket";
 import type { GameSnapshot, HostGame } from "../types/game";
+import { latestSnapshot } from "../utils/snapshot";
 
 interface HostContextValue {
     game: HostGame | null;
     snapshot: GameSnapshot | null;
     connected: boolean;
+    connectionLost: boolean;
     error: string | null;
     roomClosed: boolean;
     openRoom: () => Promise<void>;
@@ -44,6 +46,7 @@ export function HostProvider({ children }: { children: ReactNode }) {
     const [game, setGame] = useState<HostGame | null>(null);
     const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
     const [connected, setConnected] = useState(false);
+    const [connectionLost, setConnectionLost] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [roomClosed, setRoomClosed] = useState(false);
     const clientRef = useRef<Client | null>(null);
@@ -117,27 +120,39 @@ export function HostProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (!game) return;
 
+        let active = true;
+        let wasConnected = false;
+
         const client = connectToGame(game.gameCode, {
-            onSnapshot: setSnapshot,
+            onSnapshot: (next) => {
+                if (!active) return;
+                setSnapshot((current) => latestSnapshot(current, next));
+            },
+            onClosed: () => {
+                if (!active) return;
+                clearHostGame();
+                client.deactivate();
+                setRoomClosed(true);
+                setError("This room has been closed.");
+            },
             onConnectionChange: (isConnected) => {
+                if (!active) return;
                 setConnected(isConnected);
-                if (!isConnected) return;
-                connectHost(client, game.gameCode, game.hostToken);
-                getSnapshot(game.gameCode).then((current) => {
-                    if (current) return;
-                    clearHostGame();
-                    client.deactivate();
-                    setRoomClosed(true);
-                    setError("This room has been closed.");
-                });
+                setConnectionLost(!isConnected && wasConnected);
+                if (isConnected) {
+                    wasConnected = true;
+                    connectHost(client, game.gameCode, game.hostToken);
+                }
             },
         });
         clientRef.current = client;
 
         return () => {
+            active = false;
             client.deactivate();
             clientRef.current = null;
             setConnected(false);
+            setConnectionLost(false);
         };
     }, [game]);
 
@@ -176,6 +191,7 @@ export function HostProvider({ children }: { children: ReactNode }) {
                 game,
                 snapshot,
                 connected,
+                connectionLost,
                 error,
                 roomClosed,
                 openRoom,

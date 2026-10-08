@@ -1,13 +1,18 @@
-import { Client } from "@stomp/stompjs";
+import { Client, ReconnectionTimeMode } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import type { GameSnapshot, Player } from "../types/game";
+import { getSnapshot } from "./gameApi";
+import type { GameSnapshot, JoinedPlayer } from "../types/game";
+
+const FIRST_RECONNECT_DELAY_MILLIS = 1000;
+const MAX_RECONNECT_DELAY_MILLIS = 30000;
+const HEARTBEAT_MILLIS = 5000;
 
 export type HostAction =
     "start-next-question" | "close-question" | "show-leaderboard" | "finish";
 
 interface GameSocketHandlers {
     onSnapshot: (snapshot: GameSnapshot) => void;
-    onPlayerJoined?: (player: Player) => void;
+    onPlayerJoined?: (player: JoinedPlayer) => void;
     onClosed?: () => void;
     onConnectionChange?: (connected: boolean) => void;
 }
@@ -18,7 +23,11 @@ export function connectToGame(
 ): Client {
     const client = new Client({
         webSocketFactory: () => new SockJS("/ws"),
-        reconnectDelay: 3000,
+        reconnectDelay: FIRST_RECONNECT_DELAY_MILLIS,
+        reconnectTimeMode: ReconnectionTimeMode.EXPONENTIAL,
+        maxReconnectDelay: MAX_RECONNECT_DELAY_MILLIS,
+        heartbeatIncoming: HEARTBEAT_MILLIS,
+        heartbeatOutgoing: HEARTBEAT_MILLIS,
         onConnect: () => {
             client.subscribe(`/topic/game/${gameCode}`, (message) => {
                 handlers.onSnapshot({
@@ -42,6 +51,12 @@ export function connectToGame(
                 );
             }
             handlers.onConnectionChange?.(true);
+            getSnapshot(gameCode)
+                .then((current) => {
+                    if (current) handlers.onSnapshot(current);
+                    else handlers.onClosed?.();
+                })
+                .catch(() => undefined);
         },
         onWebSocketClose: () => handlers.onConnectionChange?.(false),
     });
@@ -60,10 +75,15 @@ export function connectHost(
     });
 }
 
-export function joinGame(client: Client, gameCode: string, nickname: string) {
+export function joinGame(
+    client: Client,
+    gameCode: string,
+    nickname: string,
+    token: string,
+) {
     client.publish({
         destination: `/app/game/${gameCode}/join`,
-        body: JSON.stringify({ nickname }),
+        body: JSON.stringify({ nickname, token }),
     });
 }
 

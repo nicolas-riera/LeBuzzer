@@ -28,17 +28,21 @@ export interface GameSnapshot {
     leaderboard: LeaderboardEntry[];
     receivedAt: number;
     hostConnected: boolean;
+    sequence: number;
 }
 
-export interface Player {
+export interface JoinedPlayer {
     id: string;
     score: number;
-    playerStatus: "ONLINE" | "OFFLINE";
 }
 
 export interface PlayerSession {
     gameCode: string;
     nickname: string;
+}
+
+export interface StoredPlayerSession extends PlayerSession {
+    token: string;
 }
 
 export interface SubmittedAnswer {

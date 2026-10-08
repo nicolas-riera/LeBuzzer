@@ -18,6 +18,7 @@ public class Game {
     private List<Player> playerList;
     private List<Question> questionList;
     private Map<String, PlayerAnswer> currentAnswers;
+    private long snapshotSequence;
 
     public Game(String gameCode) {
         this(gameCode, null);
@@ -38,6 +39,10 @@ public class Game {
 
     public void setHostToken(String hostToken) {
         this.hostToken = hostToken;
+    }
+
+    public long nextSnapshotSequence() {
+        return ++snapshotSequence;
     }
 
     public String getHostSessionId() {

@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { Navigate } from "react-router";
 import ConnectionNotice from "./ConnectionNotice";
+import ConnectionStatus from "./ConnectionStatus";
 import { useHost } from "../context/HostContext";
 import { useHostNavigation } from "../hooks/useGameNavigation";
 
 export default function RequireHost({ children }: { children: ReactNode }) {
-    const { game, snapshot, connected, error, resumeRoom } = useHost();
+    const { game, snapshot, connected, connectionLost, error, resumeRoom } =
+        useHost();
 
     useHostNavigation(snapshot?.state);
 
@@ -29,8 +31,11 @@ export default function RequireHost({ children }: { children: ReactNode }) {
     return (
         <>
             {children}
-            {!connected && (
+            {connectionLost && (
                 <ConnectionNotice message="Connection lost, reconnecting… The room closes if you stay away too long." />
+            )}
+            {snapshot.state !== "FINISHED" && (
+                <ConnectionStatus connected={connected} />
             )}
         </>
     );

@@ -16,6 +16,7 @@ function sameAnswers(first: number[], second: number[]) {
 function resultMessage(
     snapshot: GameSnapshot,
     answer: SubmittedAnswer | null,
+    joinedAtQuestion: number | null,
     score: number,
 ) {
     const question = snapshot.currentQuestion;
@@ -25,7 +26,10 @@ function resultMessage(
     if (!answer || answer.questionNumber !== question.number) {
         return {
             success: false,
-            text: "Time's up! You didn't answer this question.",
+            text:
+                joinedAtQuestion === question.number
+                    ? "You joined during this question. Get ready for the next one!"
+                    : "Time's up! You didn't answer this question.",
         };
     }
 
@@ -47,7 +51,7 @@ function resultMessage(
 }
 
 export default function AnswerUser() {
-    const { session, snapshot, answer } = useGame();
+    const { session, snapshot, answer, joinedAtQuestion } = useGame();
 
     if (!session || !snapshot) return null;
 
@@ -56,7 +60,7 @@ export default function AnswerUser() {
     );
     const score = ranking?.score ?? 0;
     const playerCount = snapshot.leaderboard.length;
-    const result = resultMessage(snapshot, answer, score);
+    const result = resultMessage(snapshot, answer, joinedAtQuestion, score);
 
     return (
         <main className="play">

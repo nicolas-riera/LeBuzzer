@@ -8,7 +8,13 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import type { Client } from "@stomp/stompjs";
-import { getSnapshot } from "../services/gameApi";
+import {
+    clearPlayerSession,
+    createPlayerToken,
+    getSnapshot,
+    loadPlayerSession,
+    savePlayerSession,
+} from "../services/gameApi";
 import {
     connectToGame,
     joinGame,
@@ -19,14 +25,17 @@ import type {
     PlayerSession,
     SubmittedAnswer,
 } from "../types/game";
+import { latestSnapshot } from "../utils/snapshot";
 
-const JOIN_TIMEOUT_MS = 5000;
+const JOIN_TIMEOUT_MS = 8000;
 
 interface GameContextValue {
     session: PlayerSession | null;
     snapshot: GameSnapshot | null;
+    connected: boolean;
     closedGameCode: string | null;
     answer: SubmittedAnswer | null;
+    joinedAtQuestion: number | null;
     join: (gameCode: string, nickname: string) => Promise<void>;
     leave: () => void;
     submitAnswer: (selectedIndices: number[]) => void;
@@ -37,18 +46,34 @@ const GameContext = createContext<GameContextValue | null>(null);
 export function GameProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<PlayerSession | null>(null);
     const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
+    const [connected, setConnected] = useState(false);
     const [closedGameCode, setClosedGameCode] = useState<string | null>(null);
     const [answer, setAnswer] = useState<SubmittedAnswer | null>(null);
+    const [joinedAtQuestion, setJoinedAtQuestion] = useState<number | null>(
+        null,
+    );
     const clientRef = useRef<Client | null>(null);
     const finishedRef = useRef(false);
 
-    const leave = useCallback(() => {
+    const applySnapshot = useCallback((next: GameSnapshot) => {
+        if (next.state === "FINISHED") finishedRef.current = true;
+        setSnapshot((current) => latestSnapshot(current, next));
+    }, []);
+
+    const disconnect = useCallback(() => {
         clientRef.current?.deactivate();
         clientRef.current = null;
         setSession(null);
         setSnapshot(null);
+        setConnected(false);
         setAnswer(null);
+        setJoinedAtQuestion(null);
     }, []);
+
+    const leave = useCallback(() => {
+        disconnect();
+        clearPlayerSession();
+    }, [disconnect]);
 
     const submitAnswer = useCallback(
         (selectedIndices: number[]) => {
@@ -72,20 +97,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
         async (gameCode: string, nickname: string) => {
             const code = gameCode.trim().toUpperCase();
             const name = nickname.trim();
+            const stored = loadPlayerSession();
+            const resuming =
+                stored !== null &&
+                stored.gameCode === code &&
+                stored.nickname.toLowerCase() === name.toLowerCase();
+            const token = resuming ? stored.token : createPlayerToken();
 
             const current = await getSnapshot(code);
             if (!current) {
+                if (resuming) clearPlayerSession();
                 throw new Error("This room does not exist.");
             }
             if (current.state === "FINISHED") {
                 throw new Error("This game is already over.");
             }
-            if (!current.hostConnected) {
+            if (!resuming && !current.hostConnected) {
                 throw new Error(
                     "This room has no host. Ask the host to open it again.",
                 );
             }
             if (
+                !resuming &&
                 current.onlinePlayers.some(
                     (player) => player.toLowerCase() === name.toLowerCase(),
                 )
@@ -93,10 +126,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 throw new Error("This nickname is already taken.");
             }
 
-            leave();
+            disconnect();
             finishedRef.current = false;
             setClosedGameCode(null);
-            setSnapshot(current);
+            setJoinedAtQuestion(
+                resuming || current.state === "WAITING"
+                    ? null
+                    : (current.currentQuestion?.number ?? null),
+            );
+            applySnapshot(current);
 
             await new Promise<void>((resolve, reject) => {
                 let joined = false;
@@ -105,6 +143,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                     clearTimeout(timeout);
                     client.deactivate();
                     clientRef.current = null;
+                    setConnected(false);
                     reject(new Error(message));
                 };
 
@@ -113,23 +152,31 @@ export function GameProvider({ children }: { children: ReactNode }) {
                     JOIN_TIMEOUT_MS,
                 );
 
+                const isCurrent = () => clientRef.current === client;
+
                 const client = connectToGame(code, {
                     onSnapshot: (next) => {
-                        finishedRef.current = next.state === "FINISHED";
-                        setSnapshot(next);
+                        if (isCurrent()) applySnapshot(next);
                     },
                     onPlayerJoined: (player) => {
                         if (
                             joined ||
                             player.id.toLowerCase() !== name.toLowerCase()
-                        )
+                        ) {
                             return;
+                        }
                         joined = true;
                         clearTimeout(timeout);
                         setSession({ gameCode: code, nickname: player.id });
+                        savePlayerSession({
+                            gameCode: code,
+                            nickname: player.id,
+                            token,
+                        });
                         resolve();
                     },
                     onClosed: () => {
+                        clearPlayerSession();
                         if (!joined) {
                             fail("This room has been closed.");
                             return;
@@ -141,14 +188,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
                         setSnapshot(null);
                         setClosedGameCode(code);
                     },
-                    onConnectionChange: (connected) => {
-                        if (connected) joinGame(client, code, name);
+                    onConnectionChange: (isConnected) => {
+                        if (!isCurrent()) return;
+                        setConnected(isConnected);
+                        if (isConnected) joinGame(client, code, name, token);
                     },
                 });
                 clientRef.current = client;
             });
         },
-        [leave],
+        [applySnapshot, disconnect],
     );
 
     useEffect(
@@ -163,8 +212,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
             value={{
                 session,
                 snapshot,
+                connected,
                 closedGameCode,
                 answer,
+                joinedAtQuestion,
                 join,
                 leave,
                 submitAnswer,

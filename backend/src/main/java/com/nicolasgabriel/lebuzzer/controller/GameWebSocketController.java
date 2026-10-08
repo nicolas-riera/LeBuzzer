@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.nicolasgabriel.lebuzzer.dto.GameSnapshot;
+import com.nicolasgabriel.lebuzzer.dto.JoinedPlayer;
 import com.nicolasgabriel.lebuzzer.model.Player;
 import com.nicolasgabriel.lebuzzer.model.Question;
 import com.nicolasgabriel.lebuzzer.service.BuzzerService;
@@ -51,10 +52,10 @@ public class GameWebSocketController {
     public void joinGame(@DestinationVariable String gameCode,
             @Payload Map<String, String> payload,
             @Header("simpSessionId") String sessionId) {
-        String nickname = payload.get("nickname");
-        Player player = buzzerService.joinGame(gameCode, nickname, sessionId);
+        Player player = buzzerService.joinGame(gameCode, payload.get("nickname"), payload.get("token"), sessionId);
 
-        messagingTemplate.convertAndSend("/topic/game/" + gameCode + "/player-joined", player);
+        messagingTemplate.convertAndSend("/topic/game/" + gameCode + "/player-joined",
+                new JoinedPlayer(player.getId(), player.getScore()));
         broadcastSnapshot(gameCode);
     }
 

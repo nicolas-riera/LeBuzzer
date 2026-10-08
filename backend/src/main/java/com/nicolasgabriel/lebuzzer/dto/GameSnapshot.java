@@ -14,5 +14,6 @@ public record GameSnapshot(
         int answeredCount,
         List<Integer> correctAnswerIndices,
         List<LeaderboardEntry> leaderboard,
-        boolean hostConnected) {
+        boolean hostConnected,
+        long sequence) {
 }
