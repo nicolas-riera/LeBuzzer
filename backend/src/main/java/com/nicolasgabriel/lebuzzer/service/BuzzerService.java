@@ -39,6 +39,7 @@ public class BuzzerService {
     private static final int BASE_POINTS = 500;
     private static final int MAX_SPEED_BONUS = 500;
     private static final Duration DEFAULT_HOST_GRACE_PERIOD = Duration.ofSeconds(15);
+    private static final long ANSWER_GRACE_MILLIS = 500;
 
     private final Map<String, Game> games = new ConcurrentHashMap<>();
     private final Map<String, String> gameCodeBySessionId = new ConcurrentHashMap<>();
@@ -194,7 +195,7 @@ public class BuzzerService {
                 return false;
             }
             Question question = currentQuestion(game);
-            if (remainingMillis(game, question) <= 0) {
+            if (remainingMillis(game, question) + ANSWER_GRACE_MILLIS <= 0) {
                 return false;
             }
             if (game.getCurrentAnswers().containsKey(player.getId())) {
@@ -324,7 +325,7 @@ public class BuzzerService {
         String code = game.getGameCode();
         int expectedIndex = game.getCurrentQuestionIndex();
         ScheduledFuture<?> task = scheduler.schedule(() -> onExpiration(code, expectedIndex),
-                question.getDurationInSeconds(), TimeUnit.SECONDS);
+                question.getDurationInSeconds() * 1000L + ANSWER_GRACE_MILLIS, TimeUnit.MILLISECONDS);
         expirationTasks.put(code, task);
     }
 

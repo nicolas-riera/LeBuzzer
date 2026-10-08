@@ -51,7 +51,7 @@ export default function QuestionUser() {
     return (
         <main className="play">
             <Header>
-                <Timer remainingMillis={snapshot.remainingMillis} />
+                <Timer snapshot={snapshot} />
             </Header>
 
             <div className="play-content">

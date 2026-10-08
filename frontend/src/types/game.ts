@@ -26,6 +26,7 @@ export interface GameSnapshot {
     answeredCount: number;
     correctAnswerIndices: number[] | null;
     leaderboard: LeaderboardEntry[];
+    receivedAt: number;
     hostConnected: boolean;
 }
 

@@ -20,7 +20,10 @@ export function connectToGame(
         reconnectDelay: 3000,
         onConnect: () => {
             client.subscribe(`/topic/game/${gameCode}`, (message) => {
-                handlers.onSnapshot(JSON.parse(message.body));
+                handlers.onSnapshot({
+                    ...JSON.parse(message.body),
+                    receivedAt: Date.now(),
+                });
             });
             if (handlers.onPlayerJoined) {
                 const onPlayerJoined = handlers.onPlayerJoined;

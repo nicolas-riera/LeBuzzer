@@ -71,6 +71,7 @@ class BuzzerServiceTest {
         QuestionView question = buzzerService.getSnapshot(game.getGameCode()).currentQuestion();
         assertEquals(1, question.number());
         assertEquals(game.getQuestionList().size(), question.totalQuestions());
+        assertEquals(game.getQuestionList().get(0).getDurationInSeconds(), question.durationInSeconds());
         assertEquals(game.getQuestionList().get(0).getCorrectAnswerIndices().size() > 1, question.multipleChoice());
     }
 

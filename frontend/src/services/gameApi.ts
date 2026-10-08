@@ -15,7 +15,8 @@ export async function getSnapshot(
     gameCode: string,
 ): Promise<GameSnapshot | null> {
     const response = await fetch(`/api/games/${gameCode}/snapshot`);
-    return response.ok ? response.json() : null;
+    if (!response.ok) return null;
+    return { ...(await response.json()), receivedAt: Date.now() };
 }
 
 export function saveHostGame(game: HostGame) {
