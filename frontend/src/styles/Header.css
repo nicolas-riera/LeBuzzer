@@ -1,0 +1,35 @@
+.header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  text-decoration: none;
+}
+
+.header-link:focus-visible {
+  outline: 3px solid var(--title-color);
+  outline-offset: 4px;
+  border-radius: var(--radius-small);
+}
+
+.header-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.header-brand {
+  font-family: var(--title-font);
+  font-size: 1.4rem;
+  font-weight: normal;
+  color: var(--title-color);
+}
+
+@media (min-width: 768px) {
+  .header-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .header-brand {
+    font-size: 1.6rem;
+  }
+}

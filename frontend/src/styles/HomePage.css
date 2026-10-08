@@ -1,39 +1,9 @@
-/* Mobile first: base styles target phones, media queries enhance larger screens */
-
 .home {
   min-height: 100vh;
   max-width: 1000px;
   margin: 0 auto;
   padding: var(--spacing-m);
-  color: var(--subtitle-color);
 }
-
-/* global.css paints every element with the page background: neutralise it inside the page */
-.home * {
-  background-color: transparent;
-}
-
-/* Header */
-
-.home-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-s);
-}
-
-.home-logo {
-  width: 40px;
-  height: 40px;
-}
-
-.home-brand {
-  font-family: var(--title-font);
-  font-size: 1.4rem;
-  font-weight: normal;
-  color: var(--title-color);
-}
-
-/* Actions */
 
 .home-actions {
   display: flex;
@@ -44,29 +14,7 @@
 
 .home-button {
   flex: 0 1 140px;
-  padding: var(--spacing-m) var(--spacing-l);
-  border-radius: var(--radius);
-  background-color: var(--button-color) !important;
-  color: var(--button-text-color);
-  font-family: var(--title-font);
-  font-size: 1.25rem;
-  text-align: center;
-  text-decoration: none;
-  box-shadow: 0 4px 0 var(--title-color);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-
-.home-button:active {
-  transform: translateY(4px);
-  box-shadow: 0 0 0 var(--title-color);
-}
-
-.home-button:focus-visible {
-  outline: 3px solid var(--title-color);
-  outline-offset: 4px;
-}
-
-/* Presentation */
 
 .home-presentation {
   padding-top: var(--spacing-l);
@@ -105,7 +53,7 @@
   padding: var(--spacing-m);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  background-color: var(--surface-color) !important;
+  background-color: var(--surface-color);
 }
 
 .home-step-number {
@@ -116,7 +64,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: var(--title-color) !important;
+  background-color: var(--title-color);
   color: var(--background-color);
   font-family: var(--title-font);
   font-weight: normal;
@@ -136,20 +84,9 @@
   line-height: 1.5;
 }
 
-/* Tablet */
-
 @media (min-width: 768px) {
   .home {
     padding: var(--spacing-l);
-  }
-
-  .home-logo {
-    width: 48px;
-    height: 48px;
-  }
-
-  .home-brand {
-    font-size: 1.6rem;
   }
 
   .home-actions {
@@ -177,19 +114,5 @@
   .home-step {
     flex-direction: column;
     padding: var(--spacing-l) var(--spacing-m);
-  }
-}
-
-/* Desktop: hover effects only where a pointer exists */
-
-@media (hover: hover) {
-  .home-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 0 var(--title-color);
-  }
-
-  .home-button:hover:active {
-    transform: translateY(4px);
-    box-shadow: 0 0 0 var(--title-color);
   }
 }
