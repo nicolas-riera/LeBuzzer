@@ -1,0 +1,195 @@
+/* Mobile first: base styles target phones, media queries enhance larger screens */
+
+.home {
+  min-height: 100vh;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--spacing-m);
+  color: var(--subtitle-color);
+}
+
+/* global.css paints every element with the page background: neutralise it inside the page */
+.home * {
+  background-color: transparent;
+}
+
+/* Header */
+
+.home-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+.home-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.home-brand {
+  font-family: var(--title-font);
+  font-size: 1.4rem;
+  font-weight: normal;
+  color: var(--title-color);
+}
+
+/* Actions */
+
+.home-actions {
+  display: flex;
+  justify-content: space-around;
+  gap: var(--spacing-m);
+  margin: var(--spacing-xl) 0;
+}
+
+.home-button {
+  flex: 0 1 140px;
+  padding: var(--spacing-m) var(--spacing-l);
+  border-radius: var(--radius);
+  background-color: var(--button-color) !important;
+  color: var(--button-text-color);
+  font-family: var(--title-font);
+  font-size: 1.25rem;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 4px 0 var(--title-color);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.home-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--title-color);
+}
+
+.home-button:focus-visible {
+  outline: 3px solid var(--title-color);
+  outline-offset: 4px;
+}
+
+/* Presentation */
+
+.home-presentation {
+  padding-top: var(--spacing-l);
+  border-top: 1px solid var(--border-color);
+}
+
+.home-presentation h1 {
+  margin: 0 0 var(--spacing-m);
+  font-family: var(--title-font);
+  font-weight: normal;
+  font-size: 1.6rem;
+  color: var(--title-color);
+  text-align: center;
+}
+
+.home-intro {
+  max-width: 60ch;
+  margin: 0 auto var(--spacing-l);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.home-steps {
+  display: grid;
+  gap: var(--spacing-m);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-m);
+  padding: var(--spacing-m);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: var(--surface-color) !important;
+}
+
+.home-step-number {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--title-color) !important;
+  color: var(--background-color);
+  font-family: var(--title-font);
+  font-weight: normal;
+}
+
+.home-step h2 {
+  margin: 0 0 var(--spacing-xs);
+  font-family: var(--title-font);
+  font-weight: normal;
+  font-size: 1.1rem;
+  color: var(--title-color);
+}
+
+.home-step p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Tablet */
+
+@media (min-width: 768px) {
+  .home {
+    padding: var(--spacing-l);
+  }
+
+  .home-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .home-brand {
+    font-size: 1.6rem;
+  }
+
+  .home-actions {
+    justify-content: center;
+    gap: var(--spacing-xl);
+  }
+
+  .home-button {
+    flex-basis: 180px;
+    font-size: 1.4rem;
+  }
+
+  .home-presentation h1 {
+    font-size: 2rem;
+  }
+
+  .home-intro {
+    font-size: 1.1rem;
+  }
+
+  .home-steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .home-step {
+    flex-direction: column;
+    padding: var(--spacing-l) var(--spacing-m);
+  }
+}
+
+/* Desktop: hover effects only where a pointer exists */
+
+@media (hover: hover) {
+  .home-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--title-color);
+  }
+
+  .home-button:hover:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--title-color);
+  }
+}

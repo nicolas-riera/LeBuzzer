@@ -1,0 +1,13 @@
+/*
+ * JejuGothic: self-hosted, subset to Latin characters (the full Korean font weighs 2.4 MB).
+ * Only exists in regular weight: never use font-weight: bold with it, or the browser fakes it.
+ * Instrument Sans: loaded from @fontsource/instrument-sans in main.tsx.
+ */
+
+@font-face {
+  font-family: 'JejuGothic';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/JejuGothic-Regular-latin.woff2') format('woff2');
+}

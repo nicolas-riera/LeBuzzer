@@ -1,4 +1,12 @@
+import { BrowserRouter, Route, Routes } from 'react-router'
+import HomePage from './pages/HomePage'
+
 export default function App() {
-  return <h1>LeBuzzer</h1>
-  
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }

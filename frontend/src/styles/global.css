@@ -2,8 +2,22 @@
   --background-color: #3A3042;
   --title-color: #FFE19C;
   --subtitle-color: #FFF6BB;
-  --title-font: 'JejuGothic';
-  --text-font: 'Instrument Sans';
+  --title-font: 'JejuGothic', sans-serif;
+  --text-font: 'Instrument Sans', sans-serif;
+
+  --button-color: #FFFFFF;
+  --button-text-color: #000000;
+  --surface-color: rgba(255, 246, 187, 0.06);
+  --border-color: rgba(255, 246, 187, 0.15);
+
+  --radius-small: 12px;
+  --radius: 16px;
+
+  --spacing-xs: 4px;
+  --spacing-s: 8px;
+  --spacing-m: 16px;
+  --spacing-l: 32px;
+  --spacing-xl: 64px;
 
   --response-blue: #3E82AC;
   --response-green: #3EAC45;
@@ -15,7 +29,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  background-color: #3A3042;
+  background-color: var(--background-color);
 }
 
 body {
