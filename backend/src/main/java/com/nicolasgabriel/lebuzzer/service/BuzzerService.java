@@ -237,11 +237,12 @@ public class BuzzerService {
         Game game = requireGame(gameCode);
         synchronized (game) {
             GameStates state = game.getCurrentState();
-            boolean questionVisible = state == GameStates.QUIZZING || state == GameStates.QUIZ_RESULTS;
+            boolean resultsVisible = state == GameStates.QUIZ_RESULTS || state == GameStates.LEADERBOARD;
+            boolean questionVisible = state == GameStates.QUIZZING || resultsVisible;
             Question question = questionVisible ? currentQuestion(game) : null;
             QuestionView view = question == null ? null : toView(game, question);
             long remaining = state == GameStates.QUIZZING ? Math.max(0, remainingMillis(game, question)) : 0;
-            List<Integer> correct = state == GameStates.QUIZ_RESULTS ? question.getCorrectAnswerIndices() : null;
+            List<Integer> correct = resultsVisible ? question.getCorrectAnswerIndices() : null;
             return new GameSnapshot(
                     game.getGameCode(),
                     state,

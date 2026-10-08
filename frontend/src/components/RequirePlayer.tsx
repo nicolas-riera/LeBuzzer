@@ -31,9 +31,11 @@ export default function RequirePlayer({ children }: { children: ReactNode }) {
     return (
         <>
             {children}
-            {snapshot && !snapshot.hostConnected && (
-                <ConnectionNotice message="The host is disconnected. The room will close if they don't come back." />
-            )}
+            {snapshot &&
+                !snapshot.hostConnected &&
+                snapshot.state !== "FINISHED" && (
+                    <ConnectionNotice message="The host is disconnected. The room will close if they don't come back." />
+                )}
         </>
     );
 }

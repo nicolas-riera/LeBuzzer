@@ -33,7 +33,9 @@ interface HostContextValue {
     resumeRoom: () => Promise<void>;
     startNextQuestion: () => void;
     closeQuestion: () => void;
+    showLeaderboard: () => void;
     finishGame: () => void;
+    closeRoom: () => void;
 }
 
 const HostContext = createContext<HostContextValue | null>(null);
@@ -157,7 +159,16 @@ export function HostProvider({ children }: { children: ReactNode }) {
         [send],
     );
     const closeQuestion = useCallback(() => send("close-question"), [send]);
+    const showLeaderboard = useCallback(() => send("show-leaderboard"), [send]);
     const finishGame = useCallback(() => send("finish"), [send]);
+
+    const closeRoom = useCallback(() => {
+        clearHostGame();
+        setGame(null);
+        setSnapshot(null);
+        setError(null);
+        setRoomClosed(false);
+    }, []);
 
     return (
         <HostContext.Provider
@@ -171,7 +182,9 @@ export function HostProvider({ children }: { children: ReactNode }) {
                 resumeRoom,
                 startNextQuestion,
                 closeQuestion,
+                showLeaderboard,
                 finishGame,
+                closeRoom,
             }}
         >
             {children}

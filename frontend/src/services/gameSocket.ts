@@ -2,7 +2,8 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import type { GameSnapshot, Player } from "../types/game";
 
-export type HostAction = "start-next-question" | "close-question" | "finish";
+export type HostAction =
+    "start-next-question" | "close-question" | "show-leaderboard" | "finish";
 
 interface GameSocketHandlers {
     onSnapshot: (snapshot: GameSnapshot) => void;

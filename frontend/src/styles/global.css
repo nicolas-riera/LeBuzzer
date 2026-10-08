@@ -94,6 +94,13 @@ body {
     outline-offset: 4px;
 }
 
+.button-secondary {
+    border: 2px solid var(--title-color);
+    background-color: transparent;
+    color: var(--title-color);
+    box-shadow: none;
+}
+
 .button:disabled {
     opacity: 0.5;
     cursor: not-allowed;

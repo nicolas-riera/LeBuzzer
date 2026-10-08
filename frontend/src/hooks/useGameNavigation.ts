@@ -6,7 +6,8 @@ const HOST_ROUTES: Partial<Record<GameState, string>> = {
     WAITING: "/CreateQuizz",
     QUIZZING: "/QuestionHost",
     QUIZ_RESULTS: "/AnswerHost",
-    LEADERBOARD: "/AnswerHost",
+    LEADERBOARD: "/LeaderboardHost",
+    FINISHED: "/GameOverHost",
 };
 
 const PLAYER_ROUTES: Partial<Record<GameState, string>> = {
@@ -14,6 +15,7 @@ const PLAYER_ROUTES: Partial<Record<GameState, string>> = {
     QUIZZING: "/QuestionUser",
     QUIZ_RESULTS: "/AnswerUser",
     LEADERBOARD: "/AnswerUser",
+    FINISHED: "/GameOverUser",
 };
 
 function useFollowRoute(target: string | undefined) {

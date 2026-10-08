@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header";
+import { useGame } from "../context/GameContext";
+import { useHost } from "../context/HostContext";
 import "../styles/HomePage.css";
 
 const steps = [
@@ -18,6 +21,14 @@ const steps = [
 ];
 
 export default function HomePage() {
+    const { leave } = useGame();
+    const { closeRoom } = useHost();
+
+    useEffect(() => {
+        leave();
+        closeRoom();
+    }, [leave, closeRoom]);
+
     return (
         <main className="home">
             <Header />

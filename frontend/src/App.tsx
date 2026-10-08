@@ -6,8 +6,11 @@ import { HostProvider } from "./context/HostContext";
 import HomePage from "./pages/HomePage";
 import AnswerHost from "./pages/Host/AnswerHost";
 import CreateQuizz from "./pages/Host/CreateQuizz";
+import GameOverHost from "./pages/Host/GameOverHost";
+import LeaderboardHost from "./pages/Host/LeaderboardHost";
 import QuestionHost from "./pages/Host/QuestionHost";
 import AnswerUser from "./pages/User/AnswerUser";
+import GameOverUser from "./pages/User/GameOverUser";
 import JoinQuizz from "./pages/User/JoinQuizz";
 import QuestionUser from "./pages/User/QuestionUser";
 import WaitingQuizz from "./pages/User/WaitingQuizz";
@@ -37,6 +40,22 @@ export default function App() {
                             }
                         />
                         <Route
+                            path="/LeaderboardHost"
+                            element={
+                                <RequireHost>
+                                    <LeaderboardHost />
+                                </RequireHost>
+                            }
+                        />
+                        <Route
+                            path="/GameOverHost"
+                            element={
+                                <RequireHost>
+                                    <GameOverHost />
+                                </RequireHost>
+                            }
+                        />
+                        <Route
                             path="/JoinQuizz/:gameCode?"
                             element={<JoinQuizz />}
                         />
@@ -61,6 +80,14 @@ export default function App() {
                             element={
                                 <RequirePlayer>
                                     <AnswerUser />
+                                </RequirePlayer>
+                            }
+                        />
+                        <Route
+                            path="/GameOverUser/:gameCode"
+                            element={
+                                <RequirePlayer>
+                                    <GameOverUser />
                                 </RequirePlayer>
                             }
                         />

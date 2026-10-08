@@ -57,6 +57,33 @@
     opacity: 0.85;
 }
 
+.play-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-m);
+    width: 100%;
+    margin-top: auto;
+}
+
+.play-actions .button {
+    min-width: 140px;
+    text-transform: uppercase;
+}
+
+.play-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    text-align: center;
+}
+
+.play-subtitle {
+    margin: 0;
+    opacity: 0.8;
+}
+
 @media (min-width: 768px) {
     .play {
         padding: var(--spacing-l);

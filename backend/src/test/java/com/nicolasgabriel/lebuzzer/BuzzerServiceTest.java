@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.nicolasgabriel.lebuzzer.dto.GameSnapshot;
 import com.nicolasgabriel.lebuzzer.dto.QuestionView;
 import com.nicolasgabriel.lebuzzer.enums.GameStates;
 import com.nicolasgabriel.lebuzzer.model.Game;
@@ -73,6 +74,32 @@ class BuzzerServiceTest {
         assertEquals(game.getQuestionList().size(), question.totalQuestions());
         assertEquals(game.getQuestionList().get(0).getDurationInSeconds(), question.durationInSeconds());
         assertEquals(game.getQuestionList().get(0).getCorrectAnswerIndices().size() > 1, question.multipleChoice());
+    }
+
+    @Test
+    void shouldKeepQuestionAndCorrectAnswersWhenLeaderboardIsShown() {
+        Game game = buzzerService.createGame();
+        buzzerService.connectHost(game.getGameCode(), game.getHostToken(), "host-session");
+        buzzerService.startNextQuestion(game.getGameCode(), game.getHostToken());
+        buzzerService.closeQuestion(game.getGameCode(), game.getHostToken());
+
+        buzzerService.showLeaderboard(game.getGameCode(), game.getHostToken());
+
+        GameSnapshot snapshot = buzzerService.getSnapshot(game.getGameCode());
+        assertEquals(GameStates.LEADERBOARD, snapshot.state());
+        assertNotNull(snapshot.currentQuestion());
+        assertEquals(game.getQuestionList().get(0).getCorrectAnswerIndices(), snapshot.correctAnswerIndices());
+    }
+
+    @Test
+    void shouldFinishGameWhileQuestionIsInProgress() {
+        Game game = buzzerService.createGame();
+        buzzerService.connectHost(game.getGameCode(), game.getHostToken(), "host-session");
+        buzzerService.startNextQuestion(game.getGameCode(), game.getHostToken());
+
+        buzzerService.finishGame(game.getGameCode(), game.getHostToken());
+
+        assertEquals(GameStates.FINISHED, buzzerService.getSnapshot(game.getGameCode()).state());
     }
 
     @Test

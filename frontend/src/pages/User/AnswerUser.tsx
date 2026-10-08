@@ -57,7 +57,6 @@ export default function AnswerUser() {
     const score = ranking?.score ?? 0;
     const playerCount = snapshot.leaderboard.length;
     const result = resultMessage(snapshot, answer, score);
-    const finished = snapshot.state === "FINISHED";
 
     return (
         <main className="play">
@@ -106,14 +105,12 @@ export default function AnswerUser() {
                 </div>
 
                 <p className="result-waiting" aria-live="polite">
-                    {finished ? "The game is over!" : "Waiting for the host"}
-                    {!finished && (
-                        <span className="waiting-dots" aria-hidden="true">
-                            <span>.</span>
-                            <span>.</span>
-                            <span>.</span>
-                        </span>
-                    )}
+                    Waiting for the host
+                    <span className="waiting-dots" aria-hidden="true">
+                        <span>.</span>
+                        <span>.</span>
+                        <span>.</span>
+                    </span>
                 </p>
             </div>
         </main>

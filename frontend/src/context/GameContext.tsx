@@ -40,6 +40,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [closedGameCode, setClosedGameCode] = useState<string | null>(null);
     const [answer, setAnswer] = useState<SubmittedAnswer | null>(null);
     const clientRef = useRef<Client | null>(null);
+    const finishedRef = useRef(false);
 
     const leave = useCallback(() => {
         clientRef.current?.deactivate();
@@ -93,6 +94,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             }
 
             leave();
+            finishedRef.current = false;
             setClosedGameCode(null);
             setSnapshot(current);
 
@@ -112,7 +114,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 );
 
                 const client = connectToGame(code, {
-                    onSnapshot: setSnapshot,
+                    onSnapshot: (next) => {
+                        finishedRef.current = next.state === "FINISHED";
+                        setSnapshot(next);
+                    },
                     onPlayerJoined: (player) => {
                         if (
                             joined ||
@@ -131,6 +136,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                         }
                         client.deactivate();
                         clientRef.current = null;
+                        if (finishedRef.current) return;
                         setSession(null);
                         setSnapshot(null);
                         setClosedGameCode(code);
