@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.nicolasgabriel.lebuzzer.dto.QuestionView;
 import com.nicolasgabriel.lebuzzer.enums.GameStates;
 import com.nicolasgabriel.lebuzzer.model.Game;
 import com.nicolasgabriel.lebuzzer.service.BuzzerService;
@@ -58,6 +59,19 @@ class BuzzerServiceTest {
 
         assertTrue(buzzerService.getSnapshot(game.getGameCode()).hostConnected());
         assertEquals(List.of("Alice"), buzzerService.getSnapshot(game.getGameCode()).onlinePlayers());
+    }
+
+    @Test
+    void shouldExposeQuestionNumberAndTypeWhenQuestionStarts() {
+        Game game = buzzerService.createGame();
+        buzzerService.connectHost(game.getGameCode(), game.getHostToken(), "host-session");
+
+        buzzerService.startNextQuestion(game.getGameCode(), game.getHostToken());
+
+        QuestionView question = buzzerService.getSnapshot(game.getGameCode()).currentQuestion();
+        assertEquals(1, question.number());
+        assertEquals(game.getQuestionList().size(), question.totalQuestions());
+        assertEquals(game.getQuestionList().get(0).getCorrectAnswerIndices().size() > 1, question.multipleChoice());
     }
 
     @Test

@@ -2,6 +2,8 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import type { GameSnapshot, Player } from "../types/game";
 
+export type HostAction = "start-next-question" | "close-question" | "finish";
+
 interface GameSocketHandlers {
     onSnapshot: (snapshot: GameSnapshot) => void;
     onPlayerJoined?: (player: Player) => void;
@@ -61,13 +63,25 @@ export function joinGame(client: Client, gameCode: string, nickname: string) {
     });
 }
 
-export function startNextQuestion(
+export function submitAnswer(
+    client: Client,
+    gameCode: string,
+    selectedIndices: number[],
+) {
+    client.publish({
+        destination: `/app/game/${gameCode}/submit-answer`,
+        body: JSON.stringify({ selectedIndices }),
+    });
+}
+
+export function sendHostAction(
     client: Client,
     gameCode: string,
     hostToken: string,
+    action: HostAction,
 ) {
     client.publish({
-        destination: `/app/game/${gameCode}/start-next-question`,
+        destination: `/app/game/${gameCode}/${action}`,
         headers: { hostToken },
     });
 }

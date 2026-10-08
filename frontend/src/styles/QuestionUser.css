@@ -1,0 +1,52 @@
+.buzzer {
+    width: 120px;
+    height: 120px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.buzzer-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    transition:
+        transform 0.1s ease,
+        filter 0.2s ease;
+}
+
+.buzzer:active:not(:disabled) .buzzer-image,
+.buzzer-pressed .buzzer-image {
+    transform: translateY(6px) scale(0.94);
+}
+
+.buzzer:disabled {
+    cursor: not-allowed;
+}
+
+.buzzer:disabled:not(.buzzer-pressed) .buzzer-image {
+    filter: saturate(0.4) brightness(0.8);
+}
+
+.buzzer:focus-visible {
+    outline: 3px solid var(--title-color);
+    outline-offset: 4px;
+}
+
+@media (hover: hover) {
+    .buzzer:hover:not(:disabled) .buzzer-image {
+        filter: brightness(1.1);
+        transform: scale(1.04);
+    }
+}
+
+@media (min-width: 768px) {
+    .buzzer {
+        width: 150px;
+        height: 150px;
+    }
+}

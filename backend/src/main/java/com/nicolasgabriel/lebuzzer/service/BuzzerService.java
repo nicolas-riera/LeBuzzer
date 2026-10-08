@@ -238,7 +238,7 @@ public class BuzzerService {
             GameStates state = game.getCurrentState();
             boolean questionVisible = state == GameStates.QUIZZING || state == GameStates.QUIZ_RESULTS;
             Question question = questionVisible ? currentQuestion(game) : null;
-            QuestionView view = question == null ? null : toView(question);
+            QuestionView view = question == null ? null : toView(game, question);
             long remaining = state == GameStates.QUIZZING ? Math.max(0, remainingMillis(game, question)) : 0;
             List<Integer> correct = state == GameStates.QUIZ_RESULTS ? question.getCorrectAnswerIndices() : null;
             return new GameSnapshot(
@@ -264,7 +264,7 @@ public class BuzzerService {
     public QuestionView getCurrentQuestionView(String gameCode) {
         Game game = requireGame(gameCode);
         synchronized (game) {
-            return toView(currentQuestion(game));
+            return toView(game, currentQuestion(game));
         }
     }
 
@@ -385,9 +385,15 @@ public class BuzzerService {
         return game.getQuestionList().get(game.getCurrentQuestionIndex());
     }
 
-    private QuestionView toView(Question question) {
-        return new QuestionView(question.getId(), question.getText(),
-                List.copyOf(question.getOptions()), question.getDurationInSeconds());
+    private QuestionView toView(Game game, Question question) {
+        return new QuestionView(
+                question.getId(),
+                game.getCurrentQuestionIndex() + 1,
+                game.getQuestionList().size(),
+                question.getText(),
+                List.copyOf(question.getOptions()),
+                question.getCorrectAnswerIndices().size() > 1,
+                question.getDurationInSeconds());
     }
 
     private List<String> onlineNicknames(Game game) {

@@ -1,29 +1,13 @@
-import { Navigate, useParams } from "react-router";
 import Header from "../../components/Header";
 import { useGame } from "../../context/GameContext";
 import "../../styles/WaitingQuizz.css";
 
 export default function WaitingQuizz() {
-    const { gameCode = "" } = useParams();
-    const { session, snapshot, closedGameCode } = useGame();
-    const code = gameCode.toUpperCase();
+    const { session, snapshot } = useGame();
 
-    if (closedGameCode === code) {
-        return (
-            <Navigate
-                to="/JoinQuizz"
-                replace
-                state={{ error: "The host has left: the room is closed." }}
-            />
-        );
-    }
-
-    if (!session || session.gameCode !== code) {
-        return <Navigate to={`/JoinQuizz/${gameCode}`} replace />;
-    }
+    if (!session) return null;
 
     const playerCount = snapshot?.onlinePlayers.length ?? 0;
-    const hostConnected = snapshot?.hostConnected ?? true;
 
     return (
         <main className="waiting">
@@ -40,9 +24,7 @@ export default function WaitingQuizz() {
                 </div>
 
                 <p className="waiting-status" aria-live="polite">
-                    {hostConnected
-                        ? "Waiting for the host to start"
-                        : "The host is disconnected, waiting for them to come back"}
+                    Waiting for the host to start
                     <span className="waiting-dots" aria-hidden="true">
                         <span>.</span>
                         <span>.</span>

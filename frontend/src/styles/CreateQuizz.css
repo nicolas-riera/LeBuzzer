@@ -23,6 +23,16 @@
     margin: var(--spacing-l) 0 0;
 }
 
+.room-notice {
+    max-width: 40ch;
+    margin: 0;
+    padding: var(--spacing-s) var(--spacing-m);
+    border: 1px solid var(--title-color);
+    border-radius: var(--radius-small);
+    font-size: 0.95rem;
+    text-align: center;
+}
+
 .room-error {
     padding: var(--spacing-m);
     border: 1px solid var(--response-red);
@@ -142,7 +152,8 @@
     }
 
     .room-loading,
-    .room-error {
+    .room-error,
+    .room-notice {
         grid-column: 1 / -1;
     }
 

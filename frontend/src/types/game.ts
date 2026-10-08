@@ -3,8 +3,11 @@ export type GameState =
 
 export interface QuestionView {
     id: number;
+    number: number;
+    totalQuestions: number;
     text: string;
     options: string[];
+    multipleChoice: boolean;
     durationInSeconds: number;
 }
 
@@ -35,6 +38,12 @@ export interface Player {
 export interface PlayerSession {
     gameCode: string;
     nickname: string;
+}
+
+export interface SubmittedAnswer {
+    questionNumber: number;
+    selectedIndices: number[];
+    scoreBefore: number;
 }
 
 export interface HostGame {

@@ -23,6 +23,9 @@
     --response-green: #3eac45;
     --response-red: #ac3e40;
     --response-yellow: #aca33e;
+    --response-text-color: #ffffff;
+
+    --buzzer-color: #e53935;
 }
 
 *,
@@ -105,5 +108,34 @@ body {
     .button:hover:active:not(:disabled) {
         transform: translateY(4px);
         box-shadow: 0 0 0 var(--title-color);
+    }
+}
+
+.waiting-dots span {
+    animation: waiting-dot 1.4s infinite;
+}
+
+.waiting-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.waiting-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes waiting-dot {
+    0%,
+    60%,
+    100% {
+        opacity: 0.2;
+    }
+    30% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .waiting-dots span {
+        animation: none;
     }
 }

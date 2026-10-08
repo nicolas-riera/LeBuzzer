@@ -9,8 +9,16 @@ import {
 import type { ReactNode } from "react";
 import type { Client } from "@stomp/stompjs";
 import { getSnapshot } from "../services/gameApi";
-import { connectToGame, joinGame } from "../services/gameSocket";
-import type { GameSnapshot, PlayerSession } from "../types/game";
+import {
+    connectToGame,
+    joinGame,
+    submitAnswer as sendAnswer,
+} from "../services/gameSocket";
+import type {
+    GameSnapshot,
+    PlayerSession,
+    SubmittedAnswer,
+} from "../types/game";
 
 const JOIN_TIMEOUT_MS = 5000;
 
@@ -18,8 +26,10 @@ interface GameContextValue {
     session: PlayerSession | null;
     snapshot: GameSnapshot | null;
     closedGameCode: string | null;
+    answer: SubmittedAnswer | null;
     join: (gameCode: string, nickname: string) => Promise<void>;
     leave: () => void;
+    submitAnswer: (selectedIndices: number[]) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -28,6 +38,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<PlayerSession | null>(null);
     const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
     const [closedGameCode, setClosedGameCode] = useState<string | null>(null);
+    const [answer, setAnswer] = useState<SubmittedAnswer | null>(null);
     const clientRef = useRef<Client | null>(null);
 
     const leave = useCallback(() => {
@@ -35,7 +46,26 @@ export function GameProvider({ children }: { children: ReactNode }) {
         clientRef.current = null;
         setSession(null);
         setSnapshot(null);
+        setAnswer(null);
     }, []);
+
+    const submitAnswer = useCallback(
+        (selectedIndices: number[]) => {
+            const question = snapshot?.currentQuestion;
+            if (!session || !question || !clientRef.current) return;
+            const scoreBefore =
+                snapshot.leaderboard.find(
+                    (entry) => entry.playerId === session.nickname,
+                )?.score ?? 0;
+            sendAnswer(clientRef.current, session.gameCode, selectedIndices);
+            setAnswer({
+                questionNumber: question.number,
+                selectedIndices,
+                scoreBefore,
+            });
+        },
+        [session, snapshot],
+    );
 
     const join = useCallback(
         async (gameCode: string, nickname: string) => {
@@ -124,7 +154,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     return (
         <GameContext.Provider
-            value={{ session, snapshot, closedGameCode, join, leave }}
+            value={{
+                session,
+                snapshot,
+                closedGameCode,
+                answer,
+                join,
+                leave,
+                submitAnswer,
+            }}
         >
             {children}
         </GameContext.Provider>
