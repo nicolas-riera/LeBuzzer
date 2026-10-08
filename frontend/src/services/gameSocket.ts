@@ -5,6 +5,7 @@ import type { GameSnapshot, Player } from "../types/game";
 interface GameSocketHandlers {
     onSnapshot: (snapshot: GameSnapshot) => void;
     onPlayerJoined?: (player: Player) => void;
+    onClosed?: () => void;
     onConnectionChange?: (connected: boolean) => void;
 }
 
@@ -21,9 +22,18 @@ export function connectToGame(
             });
             if (handlers.onPlayerJoined) {
                 const onPlayerJoined = handlers.onPlayerJoined;
-                client.subscribe(`/topic/game/${gameCode}/player-joined`, (message) => {
-                    onPlayerJoined(JSON.parse(message.body));
-                });
+                client.subscribe(
+                    `/topic/game/${gameCode}/player-joined`,
+                    (message) => {
+                        onPlayerJoined(JSON.parse(message.body));
+                    },
+                );
+            }
+            if (handlers.onClosed) {
+                const onClosed = handlers.onClosed;
+                client.subscribe(`/topic/game/${gameCode}/closed`, () =>
+                    onClosed(),
+                );
             }
             handlers.onConnectionChange?.(true);
         },
@@ -31,6 +41,17 @@ export function connectToGame(
     });
     client.activate();
     return client;
+}
+
+export function connectHost(
+    client: Client,
+    gameCode: string,
+    hostToken: string,
+) {
+    client.publish({
+        destination: `/app/game/${gameCode}/host`,
+        headers: { hostToken },
+    });
 }
 
 export function joinGame(client: Client, gameCode: string, nickname: string) {

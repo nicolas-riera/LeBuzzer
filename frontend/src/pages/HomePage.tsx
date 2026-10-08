@@ -34,8 +34,9 @@ export default function HomePage() {
             <section className="home-presentation">
                 <h1>The quiz you play live</h1>
                 <p className="home-intro">
-                    Buzzer is a real-time multiplayer quiz game. A host creates the game,
-                    players join and answer questions as fast as they can.
+                    Buzzer is a real-time multiplayer quiz game. A host creates
+                    the game, players join and answer questions as fast as they
+                    can.
                 </p>
 
                 <ol className="home-steps">

@@ -1,7 +1,7 @@
 @font-face {
-  font-family: 'JejuGothic';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../assets/fonts/JejuGothic-Regular-latin.woff2') format('woff2');
+    font-family: "JejuGothic";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../assets/fonts/JejuGothic-Regular-latin.woff2") format("woff2");
 }

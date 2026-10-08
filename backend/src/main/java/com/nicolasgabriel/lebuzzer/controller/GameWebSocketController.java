@@ -33,22 +33,34 @@ public class GameWebSocketController {
         buzzerService.setQuestionExpiredListener(gameCode -> {
             broadcastSnapshot(gameCode);
         });
+        buzzerService.setGameClosedListener(gameCode -> {
+            messagingTemplate.convertAndSend("/topic/game/" + gameCode + "/closed",
+                    (Object) Map.of("gameCode", gameCode));
+        });
+    }
+
+    @MessageMapping("/game/{gameCode}/host")
+    public void connectHost(@DestinationVariable String gameCode,
+            @Header("hostToken") String hostToken,
+            @Header("simpSessionId") String sessionId) {
+        buzzerService.connectHost(gameCode, hostToken, sessionId);
+        broadcastSnapshot(gameCode);
     }
 
     @MessageMapping("/game/{gameCode}/join")
     public void joinGame(@DestinationVariable String gameCode,
-                         @Payload Map<String, String> payload,
-                         @Header("simpSessionId") String sessionId) {
+            @Payload Map<String, String> payload,
+            @Header("simpSessionId") String sessionId) {
         String nickname = payload.get("nickname");
         Player player = buzzerService.joinGame(gameCode, nickname, sessionId);
-        
+
         messagingTemplate.convertAndSend("/topic/game/" + gameCode + "/player-joined", player);
         broadcastSnapshot(gameCode);
     }
 
     @MessageMapping("/game/{gameCode}/start-next-question")
     public void startNextQuestion(@DestinationVariable String gameCode,
-                                  @Header("hostToken") String hostToken) {
+            @Header("hostToken") String hostToken) {
         @SuppressWarnings("unused")
         Question question = buzzerService.startNextQuestion(gameCode, hostToken);
         broadcastSnapshot(gameCode);
@@ -56,11 +68,11 @@ public class GameWebSocketController {
 
     @MessageMapping("/game/{gameCode}/submit-answer")
     public void submitAnswer(@DestinationVariable String gameCode,
-                             @Payload Map<String, List<Integer>> payload,
-                             @Header("simpSessionId") String sessionId) {
+            @Payload Map<String, List<Integer>> payload,
+            @Header("simpSessionId") String sessionId) {
         List<Integer> selectedIndices = payload.get("selectedIndices");
         boolean accepted = buzzerService.submitAnswer(gameCode, sessionId, selectedIndices);
-        
+
         if (accepted) {
             broadcastSnapshot(gameCode);
         }
@@ -68,21 +80,21 @@ public class GameWebSocketController {
 
     @MessageMapping("/game/{gameCode}/close-question")
     public void closeQuestion(@DestinationVariable String gameCode,
-                              @Header("hostToken") String hostToken) {
+            @Header("hostToken") String hostToken) {
         buzzerService.closeQuestion(gameCode, hostToken);
         broadcastSnapshot(gameCode);
     }
 
     @MessageMapping("/game/{gameCode}/show-leaderboard")
     public void showLeaderboard(@DestinationVariable String gameCode,
-                                @Header("hostToken") String hostToken) {
+            @Header("hostToken") String hostToken) {
         buzzerService.showLeaderboard(gameCode, hostToken);
         broadcastSnapshot(gameCode);
     }
 
     @MessageMapping("/game/{gameCode}/finish")
     public void finishGame(@DestinationVariable String gameCode,
-                           @Header("hostToken") String hostToken) {
+            @Header("hostToken") String hostToken) {
         buzzerService.finishGame(gameCode, hostToken);
         broadcastSnapshot(gameCode);
     }

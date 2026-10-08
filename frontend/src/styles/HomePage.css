@@ -1,118 +1,118 @@
 .home {
-  min-height: 100vh;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: var(--spacing-m);
+    min-height: 100vh;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--spacing-m);
 }
 
 .home-actions {
-  display: flex;
-  justify-content: space-around;
-  gap: var(--spacing-m);
-  margin: var(--spacing-xl) 0;
+    display: flex;
+    justify-content: space-around;
+    gap: var(--spacing-m);
+    margin: var(--spacing-xl) 0;
 }
 
 .home-button {
-  flex: 0 1 140px;
+    flex: 0 1 140px;
 }
 
 .home-presentation {
-  padding-top: var(--spacing-l);
-  border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-l);
+    border-top: 1px solid var(--border-color);
 }
 
 .home-presentation h1 {
-  margin: 0 0 var(--spacing-m);
-  font-family: var(--title-font);
-  font-weight: normal;
-  font-size: 1.6rem;
-  color: var(--title-color);
-  text-align: center;
+    margin: 0 0 var(--spacing-m);
+    font-family: var(--title-font);
+    font-weight: normal;
+    font-size: 1.6rem;
+    color: var(--title-color);
+    text-align: center;
 }
 
 .home-intro {
-  max-width: 60ch;
-  margin: 0 auto var(--spacing-l);
-  font-size: 1rem;
-  line-height: 1.6;
-  text-align: center;
+    max-width: 60ch;
+    margin: 0 auto var(--spacing-l);
+    font-size: 1rem;
+    line-height: 1.6;
+    text-align: center;
 }
 
 .home-steps {
-  display: grid;
-  gap: var(--spacing-m);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+    display: grid;
+    gap: var(--spacing-m);
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .home-step {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-m);
-  padding: var(--spacing-m);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  background-color: var(--surface-color);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-m);
+    padding: var(--spacing-m);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: var(--surface-color);
 }
 
 .home-step-number {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: var(--title-color);
-  color: var(--background-color);
-  font-family: var(--title-font);
-  font-weight: normal;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--title-color);
+    color: var(--background-color);
+    font-family: var(--title-font);
+    font-weight: normal;
 }
 
 .home-step h2 {
-  margin: 0 0 var(--spacing-xs);
-  font-family: var(--title-font);
-  font-weight: normal;
-  font-size: 1.1rem;
-  color: var(--title-color);
+    margin: 0 0 var(--spacing-xs);
+    font-family: var(--title-font);
+    font-weight: normal;
+    font-size: 1.1rem;
+    color: var(--title-color);
 }
 
 .home-step p {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 @media (min-width: 768px) {
-  .home {
-    padding: var(--spacing-l);
-  }
+    .home {
+        padding: var(--spacing-l);
+    }
 
-  .home-actions {
-    justify-content: center;
-    gap: var(--spacing-xl);
-  }
+    .home-actions {
+        justify-content: center;
+        gap: var(--spacing-xl);
+    }
 
-  .home-button {
-    flex-basis: 180px;
-    font-size: 1.4rem;
-  }
+    .home-button {
+        flex-basis: 180px;
+        font-size: 1.4rem;
+    }
 
-  .home-presentation h1 {
-    font-size: 2rem;
-  }
+    .home-presentation h1 {
+        font-size: 2rem;
+    }
 
-  .home-intro {
-    font-size: 1.1rem;
-  }
+    .home-intro {
+        font-size: 1.1rem;
+    }
 
-  .home-steps {
-    grid-template-columns: repeat(3, 1fr);
-  }
+    .home-steps {
+        grid-template-columns: repeat(3, 1fr);
+    }
 
-  .home-step {
-    flex-direction: column;
-    padding: var(--spacing-l) var(--spacing-m);
-  }
+    .home-step {
+        flex-direction: column;
+        padding: var(--spacing-l) var(--spacing-m);
+    }
 }

@@ -38,19 +38,37 @@ public class BuzzerService {
     private static final int QUESTIONS_PER_GAME = 10;
     private static final int BASE_POINTS = 500;
     private static final int MAX_SPEED_BONUS = 500;
+    private static final Duration DEFAULT_HOST_GRACE_PERIOD = Duration.ofSeconds(15);
 
     private final Map<String, Game> games = new ConcurrentHashMap<>();
     private final Map<String, String> gameCodeBySessionId = new ConcurrentHashMap<>();
+    private final Map<String, String> hostedGameCodeBySessionId = new ConcurrentHashMap<>();
     private final Map<String, ScheduledFuture<?>> expirationTasks = new ConcurrentHashMap<>();
+    private final Map<String, ScheduledFuture<?>> closingTasks = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final SecureRandom random = new SecureRandom();
+    private final Duration hostGracePeriod;
 
-    private volatile Consumer<String> questionExpiredListener = code -> { };
+    private volatile Consumer<String> questionExpiredListener = code -> {
+    };
+    private volatile Consumer<String> gameClosedListener = code -> {
+    };
+
+    public BuzzerService() {
+        this(DEFAULT_HOST_GRACE_PERIOD);
+    }
+
+    public BuzzerService(Duration hostGracePeriod) {
+        this.hostGracePeriod = hostGracePeriod;
+    }
 
     public void setQuestionExpiredListener(Consumer<String> listener) {
         this.questionExpiredListener = listener;
     }
 
+    public void setGameClosedListener(Consumer<String> listener) {
+        this.gameClosedListener = listener;
+    }
 
     public Game createGame() {
         List<Question> questions = new ArrayList<>(QuestionCatalog.getAllQuestions());
@@ -62,7 +80,22 @@ public class BuzzerService {
             game = new Game(generateCode(), questions);
         } while (games.putIfAbsent(game.getGameCode(), game) != null);
         game.setHostToken(UUID.randomUUID().toString());
+        scheduleClosing(game.getGameCode());
         return game;
+    }
+
+    public void connectHost(String gameCode, String hostToken, String sessionId) {
+        Game game = requireGame(gameCode);
+        synchronized (game) {
+            requireHost(game, hostToken);
+            String previousSessionId = game.getHostSessionId();
+            if (previousSessionId != null) {
+                hostedGameCodeBySessionId.remove(previousSessionId);
+            }
+            game.setHostSessionId(sessionId);
+            hostedGameCodeBySessionId.put(sessionId, game.getGameCode());
+            cancelClosing(game.getGameCode());
+        }
     }
 
     public Question startNextQuestion(String gameCode, String hostToken) {
@@ -120,7 +153,6 @@ public class BuzzerService {
         }
     }
 
-
     public Player joinGame(String gameCode, String nickname, String sessionId) {
         Game game = requireGame(gameCode);
         String cleanNickname = nickname == null ? "" : nickname.trim();
@@ -130,6 +162,9 @@ public class BuzzerService {
         synchronized (game) {
             if (game.getCurrentState() == GameStates.FINISHED) {
                 throw new IllegalStateException("Game is finished");
+            }
+            if (game.getHostSessionId() == null) {
+                throw new IllegalStateException("The host is not connected");
             }
             Optional<Player> existing = findPlayerByNickname(game, cleanNickname);
             Player player;
@@ -163,7 +198,7 @@ public class BuzzerService {
                 return false;
             }
             if (game.getCurrentAnswers().containsKey(player.getId())) {
-                return false; 
+                return false;
             }
             List<Integer> indices = selectedIndices == null ? List.of() : selectedIndices;
             for (Integer index : indices) {
@@ -178,6 +213,11 @@ public class BuzzerService {
     }
 
     public Optional<String> disconnect(String sessionId) {
+        String hostedGameCode = hostedGameCodeBySessionId.remove(sessionId);
+        if (hostedGameCode != null) {
+            return disconnectHost(hostedGameCode, sessionId);
+        }
+
         String gameCode = gameCodeBySessionId.remove(sessionId);
         if (gameCode == null) {
             return Optional.empty();
@@ -191,7 +231,6 @@ public class BuzzerService {
         }
         return Optional.of(gameCode);
     }
-
 
     public GameSnapshot getSnapshot(String gameCode) {
         Game game = requireGame(gameCode);
@@ -210,7 +249,8 @@ public class BuzzerService {
                     remaining,
                     game.getCurrentAnswers().size(),
                     correct,
-                    buildLeaderboard(game));
+                    buildLeaderboard(game),
+                    game.getHostSessionId() != null);
         }
     }
 
@@ -232,6 +272,52 @@ public class BuzzerService {
         return Optional.ofNullable(gameCode).map(games::get);
     }
 
+    private Optional<String> disconnectHost(String gameCode, String sessionId) {
+        Game game = games.get(gameCode);
+        if (game == null) {
+            return Optional.empty();
+        }
+        synchronized (game) {
+            if (sessionId.equals(game.getHostSessionId())) {
+                game.setHostSessionId(null);
+                scheduleClosing(gameCode);
+            }
+        }
+        return Optional.of(gameCode);
+    }
+
+    private void scheduleClosing(String gameCode) {
+        cancelClosing(gameCode);
+        ScheduledFuture<?> task = scheduler.schedule(() -> closeAbandonedGame(gameCode),
+                hostGracePeriod.toMillis(), TimeUnit.MILLISECONDS);
+        closingTasks.put(gameCode, task);
+    }
+
+    private void cancelClosing(String gameCode) {
+        ScheduledFuture<?> task = closingTasks.remove(gameCode);
+        if (task != null) {
+            task.cancel(false);
+        }
+    }
+
+    private void closeAbandonedGame(String gameCode) {
+        Game game = games.get(gameCode);
+        if (game == null) {
+            return;
+        }
+        synchronized (game) {
+            if (game.getHostSessionId() != null) {
+                return;
+            }
+            games.remove(gameCode);
+            closingTasks.remove(gameCode);
+            cancelExpiration(gameCode);
+            for (Player player : game.getPlayerList()) {
+                gameCodeBySessionId.remove(player.getSessionId());
+            }
+        }
+        gameClosedListener.accept(gameCode);
+    }
 
     private void scheduleExpiration(Game game, Question question) {
         cancelExpiration(game.getGameCode());
@@ -280,7 +366,8 @@ public class BuzzerService {
     }
 
     private int computePoints(Game game, Question question, PlayerAnswer answer) {
-        if (!new HashSet<>(answer.getSelectedOptionIndices()).equals(new HashSet<>(question.getCorrectAnswerIndices()))) {
+        if (!new HashSet<>(answer.getSelectedOptionIndices())
+                .equals(new HashSet<>(question.getCorrectAnswerIndices()))) {
             return 0;
         }
         long durationMillis = question.getDurationInSeconds() * 1000L;

@@ -42,7 +42,7 @@ class GameRestControllerTest {
     @Test
     void shouldGetSnapshot() throws Exception {
         GameSnapshot mockSnapshot = new GameSnapshot(
-                "ABCDE", GameStates.WAITING, List.of(), null, 0, 0, null, List.of()
+                "ABCDE", GameStates.WAITING, List.of(), null, 0, 0, null, List.of(), true
         );
         given(buzzerService.getSnapshot("ABCDE")).willReturn(mockSnapshot);
 
