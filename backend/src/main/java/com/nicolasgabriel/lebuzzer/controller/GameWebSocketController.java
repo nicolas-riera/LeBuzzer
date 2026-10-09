@@ -1,11 +1,13 @@
 package com.nicolasgabriel.lebuzzer.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.nicolasgabriel.lebuzzer.dto.GameSnapshot;
@@ -14,12 +16,15 @@ import com.nicolasgabriel.lebuzzer.model.Player;
 import com.nicolasgabriel.lebuzzer.model.Question;
 import com.nicolasgabriel.lebuzzer.service.BuzzerService;
 
+import jakarta.annotation.PostConstruct;
+
 @Controller
 public class GameWebSocketController {
 
     private final BuzzerService buzzerService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public GameWebSocketController(BuzzerService buzzerService) {
+    public GameWebSocketController(BuzzerService buzzerService, SimpMessagingTemplate messagingTemplate) {
         this.buzzerService = buzzerService;
         this.messagingTemplate = messagingTemplate;
     }

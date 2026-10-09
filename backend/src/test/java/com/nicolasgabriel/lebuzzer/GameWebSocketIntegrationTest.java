@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +53,7 @@ class GameWebSocketIntegrationTest {
     void testJoinGameStomp() throws Exception {
         Game game = buzzerService.createGame();
         String gameCode = game.getGameCode();
+        buzzerService.connectHost(gameCode, game.getHostToken(), "host-session");
 
         String url = "ws://localhost:" + port + "/ws";
         StompSession session = stompClient.connectAsync(url, new StompSessionHandlerAdapter() {}).get(3, TimeUnit.SECONDS);
@@ -70,7 +72,8 @@ class GameWebSocketIntegrationTest {
             }
         });
 
-        session.send("/app/game/" + gameCode + "/join", "Joueur1");
+        Map<String, String> payload = Map.of("nickname", "Alice");
+        session.send("/app/game/" + gameCode + "/join", payload);
 
         GameSnapshot snapshot = completableFuture.get(5, TimeUnit.SECONDS);
         assertNotNull(snapshot);
