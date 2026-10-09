@@ -49,12 +49,12 @@ export default function QuestionUser() {
           : "Buzz to lock in your answer!";
 
     return (
-        <main className="play">
+        <main className="page page-narrow">
             <Header>
                 <Timer snapshot={snapshot} />
             </Header>
 
-            <div className="play-content">
+            <div className="page-content">
                 <QuestionHeading question={question} />
 
                 <AnswerGrid

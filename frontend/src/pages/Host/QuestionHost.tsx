@@ -12,12 +12,12 @@ export default function QuestionHost() {
     if (!snapshot || !question) return null;
 
     return (
-        <main className="play">
+        <main className="page page-narrow">
             <Header>
                 <Timer snapshot={snapshot} />
             </Header>
 
-            <div className="play-content">
+            <div className="page-content">
                 <QuestionHeading question={question} />
 
                 <AnswerGrid options={question.options} />

@@ -63,10 +63,10 @@ export default function AnswerUser() {
     const result = resultMessage(snapshot, answer, joinedAtQuestion, score);
 
     return (
-        <main className="play">
+        <main className="page page-narrow">
             <Header />
 
-            <div className="play-content">
+            <div className="page-content">
                 {snapshot.currentQuestion && (
                     <QuestionHeading
                         question={snapshot.currentQuestion}
@@ -87,15 +87,15 @@ export default function AnswerUser() {
                         </p>
                     )}
                     <dl className="result-stats">
-                        <div className="result-stat">
-                            <dt>Score</dt>
+                        <div className="result-stat card">
+                            <dt className="label">Score</dt>
                             <dd>
                                 {score} {score === 1 ? "point" : "points"}
                             </dd>
                         </div>
                         {ranking && (
-                            <div className="result-stat">
-                                <dt>Ranking</dt>
+                            <div className="result-stat card">
+                                <dt className="label">Ranking</dt>
                                 <dd>
                                     {ordinal(ranking.rank)}
                                     <span className="result-stat-detail">

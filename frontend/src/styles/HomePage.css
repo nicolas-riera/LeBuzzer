@@ -1,10 +1,3 @@
-.home {
-    min-height: 100vh;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: var(--spacing-m);
-}
-
 .home-actions {
     display: flex;
     justify-content: space-around;
@@ -21,19 +14,13 @@
     border-top: 1px solid var(--border-color);
 }
 
-.home-presentation h1 {
-    margin: 0 0 var(--spacing-m);
-    font-family: var(--title-font);
-    font-weight: normal;
-    font-size: 1.6rem;
-    color: var(--title-color);
-    text-align: center;
+.home-presentation .page-title {
+    margin-bottom: var(--spacing-m);
 }
 
 .home-intro {
     max-width: 60ch;
     margin: 0 auto var(--spacing-l);
-    font-size: 1rem;
     line-height: 1.6;
     text-align: center;
 }
@@ -51,9 +38,6 @@
     align-items: flex-start;
     gap: var(--spacing-m);
     padding: var(--spacing-m);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    background-color: var(--surface-color);
 }
 
 .home-step-number {
@@ -67,7 +51,6 @@
     background-color: var(--title-color);
     color: var(--background-color);
     font-family: var(--title-font);
-    font-weight: normal;
 }
 
 .home-step h2 {
@@ -85,10 +68,6 @@
 }
 
 @media (min-width: 768px) {
-    .home {
-        padding: var(--spacing-l);
-    }
-
     .home-actions {
         justify-content: center;
         gap: var(--spacing-xl);
@@ -97,10 +76,6 @@
     .home-button {
         flex-basis: 180px;
         font-size: 1.4rem;
-    }
-
-    .home-presentation h1 {
-        font-size: 2rem;
     }
 
     .home-intro {

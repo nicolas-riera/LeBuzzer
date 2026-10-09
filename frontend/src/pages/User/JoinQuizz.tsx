@@ -46,10 +46,10 @@ export default function JoinQuizz() {
     }
 
     return (
-        <main className="join">
+        <main className="page">
             <Header />
 
-            <div className="join-content">
+            <div className="page-content">
                 <h1 className="page-title">Join a Room</h1>
 
                 <form className="join-form" onSubmit={handleSubmit} noValidate>
@@ -92,7 +92,7 @@ export default function JoinQuizz() {
                     />
 
                     {error && (
-                        <p className="join-error" role="alert">
+                        <p className="alert" role="alert">
                             {error}
                         </p>
                     )}

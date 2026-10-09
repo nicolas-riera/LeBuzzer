@@ -10,17 +10,15 @@ export default function WaitingQuizz() {
     const playerCount = snapshot?.onlinePlayers.length ?? 0;
 
     return (
-        <main className="waiting">
+        <main className="page">
             <Header />
 
-            <div className="waiting-content">
+            <div className="page-content waiting-content">
                 <h1 className="page-title">You're in!</h1>
 
-                <div className="waiting-card">
+                <div className="waiting-card card">
                     <span className="waiting-nickname">{session.nickname}</span>
-                    <span className="waiting-room">
-                        Room {session.gameCode}
-                    </span>
+                    <span className="label">Room {session.gameCode}</span>
                 </div>
 
                 <p className="waiting-status" aria-live="polite">

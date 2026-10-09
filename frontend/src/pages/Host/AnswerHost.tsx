@@ -12,10 +12,10 @@ export default function AnswerHost() {
     if (!snapshot || !question) return null;
 
     return (
-        <main className="play">
+        <main className="page page-narrow">
             <Header />
 
-            <div className="play-content">
+            <div className="page-content">
                 <QuestionHeading question={question} />
 
                 <AnswerGrid
@@ -23,7 +23,7 @@ export default function AnswerHost() {
                     correct={snapshot.correctAnswerIndices ?? []}
                 />
 
-                <div className="play-actions">
+                <div className="page-actions">
                     <EndGameButton />
                     <button
                         type="button"

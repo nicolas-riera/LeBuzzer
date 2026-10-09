@@ -30,7 +30,7 @@ export default function HomePage() {
     }, [leave, closeRoom]);
 
     return (
-        <main className="home">
+        <main className="page">
             <Header />
 
             <section className="home-actions">
@@ -43,7 +43,7 @@ export default function HomePage() {
             </section>
 
             <section className="home-presentation">
-                <h1>The quiz you play live</h1>
+                <h1 className="page-title">The quiz you play live</h1>
                 <p className="home-intro">
                     Buzzer is a real-time multiplayer quiz game. A host creates
                     the game, players join and answer questions as fast as they
@@ -52,7 +52,7 @@ export default function HomePage() {
 
                 <ol className="home-steps">
                     {steps.map((step, i) => (
-                        <li key={step.title} className="home-step">
+                        <li key={step.title} className="home-step card">
                             <span className="home-step-number">{i + 1}</span>
                             <div>
                                 <h2>{step.title}</h2>

@@ -44,20 +44,20 @@ export default function CreateQuizz() {
         : "";
 
     return (
-        <main className="room">
+        <main className="page">
             <Header />
 
-            <div className="room-content">
+            <div className="page-content room-content">
                 <h1 className="page-title room-title">Create a Room</h1>
 
                 {notice && !error && (
-                    <p className="room-notice" role="status">
+                    <p className="alert alert-info" role="status">
                         {notice}
                     </p>
                 )}
 
                 {error && !roomClosed && (
-                    <p className="room-error" role="alert">
+                    <p className="alert" role="alert">
                         {error}
                     </p>
                 )}
@@ -69,7 +69,7 @@ export default function CreateQuizz() {
                 {!error && game && ready && (
                     <>
                         <div className="room-code">
-                            <span className="room-code-label">Room code</span>
+                            <span className="label">Room code</span>
                             <span className="room-code-value">
                                 {game.gameCode}
                             </span>
@@ -86,7 +86,7 @@ export default function CreateQuizz() {
                         </div>
 
                         <section
-                            className="room-players"
+                            className="room-players card"
                             aria-labelledby="room-players-title"
                         >
                             <h2
@@ -100,7 +100,7 @@ export default function CreateQuizz() {
                                     Waiting for players…
                                 </p>
                             ) : (
-                                <ul className="room-players-list">
+                                <ul className="room-players-list scroll-list">
                                     {players.map((player) => (
                                         <li
                                             key={player}

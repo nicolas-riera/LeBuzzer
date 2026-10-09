@@ -13,10 +13,10 @@ export default function LeaderboardHost() {
     const lastQuestion = question.number >= question.totalQuestions;
 
     return (
-        <main className="play">
+        <main className="page page-narrow">
             <Header />
 
-            <div className="play-content">
+            <div className="page-content">
                 <div className="play-heading">
                     <h1 className="page-title">Leaderboard</h1>
                     <p className="play-subtitle">
@@ -27,7 +27,7 @@ export default function LeaderboardHost() {
 
                 <Leaderboard entries={snapshot.leaderboard} />
 
-                <div className="play-actions">
+                <div className="page-actions">
                     {!lastQuestion && <EndGameButton />}
                     <button
                         type="button"

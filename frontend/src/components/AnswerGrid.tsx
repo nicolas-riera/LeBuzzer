@@ -69,12 +69,12 @@ export default function AnswerGrid({
                                 disabled={disabled}
                                 onClick={() => onToggle(index)}
                             >
-                                <span className="answer-label">{option}</span>
+                                <span>{option}</span>
                                 {mark}
                             </button>
                         ) : (
                             <div className={className}>
-                                <span className="answer-label">{option}</span>
+                                <span>{option}</span>
                                 {mark}
                             </div>
                         )}

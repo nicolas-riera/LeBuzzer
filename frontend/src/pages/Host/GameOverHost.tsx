@@ -10,15 +10,15 @@ export default function GameOverHost() {
     if (!snapshot) return null;
 
     return (
-        <main className="gameover">
+        <main className="page page-narrow">
             <Header />
 
-            <div className="gameover-content">
+            <div className="page-content">
                 <h1 className="page-title gameover-title">Best players</h1>
 
                 <Leaderboard entries={snapshot.leaderboard} />
 
-                <div className="gameover-actions">
+                <div className="page-actions">
                     <Link to="/" className="button">
                         Game over
                     </Link>

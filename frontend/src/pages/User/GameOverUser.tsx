@@ -15,10 +15,10 @@ export default function GameOverUser() {
     const score = ranking?.score ?? 0;
 
     return (
-        <main className="gameover">
+        <main className="page page-narrow">
             <Header />
 
-            <div className="gameover-content">
+            <div className="page-content">
                 <h1 className="page-title gameover-title">Quiz over</h1>
 
                 <div className="gameover-result">
@@ -33,12 +33,12 @@ export default function GameOverUser() {
                     ) : (
                         <p className="gameover-rank">GG!</p>
                     )}
-                    <p className="gameover-score">
+                    <p className="gameover-score card">
                         You have {score} {score === 1 ? "point" : "points"}
                     </p>
                 </div>
 
-                <div className="gameover-actions">
+                <div className="page-actions">
                     <Link to="/" className="button">
                         Go Home
                     </Link>

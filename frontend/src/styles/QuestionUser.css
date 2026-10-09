@@ -1,6 +1,6 @@
 .buzzer {
-    width: 120px;
-    height: 120px;
+    width: clamp(80px, 16vh, 120px);
+    height: clamp(80px, 16vh, 120px);
     padding: 0;
     border: none;
     border-radius: 50%;
@@ -46,7 +46,7 @@
 
 @media (min-width: 768px) {
     .buzzer {
-        width: 150px;
-        height: 150px;
+        width: clamp(96px, 17vh, 150px);
+        height: clamp(96px, 17vh, 150px);
     }
 }

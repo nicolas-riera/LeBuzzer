@@ -29,7 +29,7 @@ export default function Leaderboard({
             </ol>
 
             {others.length > 0 && (
-                <ol className="ranking-list">
+                <ol className="ranking-list card scroll-list">
                     {others.map((entry) => (
                         <li key={entry.playerId} className="ranking-row">
                             <span className="ranking-rank">{entry.rank}</span>
