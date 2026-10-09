@@ -34,10 +34,6 @@ LeBuzzer/
 └── README.md           # Setup instructions & project documentation
 ```
 
-### Authors
-
-This project has been realized by [Nicolas](https://github.com/nicolas-riera/) and [Gabriel](https://github.com/Gabriel-SEMPERE/).
-
 ## Setup and run
 
 ### Requirements
@@ -111,3 +107,7 @@ npm --prefix frontend run dev -- --host
 Then open the website from the **Network** address shown by Vite (for example ```http://192.168.1.10:5173/```) before creating a room, so the QR code points to an address reachable by the phones.
 
 *The backend must be running as well, the frontend forwards ```/api``` and ```/ws``` requests to it.*
+
+### Authors
+
+This project has been realized by [Nicolas](https://github.com/nicolas-riera/) and [Gabriel](https://github.com/Gabriel-SEMPERE/).
