@@ -1,0 +1,140 @@
+import { useEffect, useRef, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import ConnectionNotice from "../../components/ConnectionNotice";
+import Header from "../../components/Header";
+import { useHost } from "../../context/HostContext";
+import { useHostNavigation } from "../../hooks/useGameNavigation";
+import "../../styles/CreateQuiz.css";
+
+export default function CreateQuiz() {
+    const {
+        game,
+        snapshot,
+        connected,
+        connectionLost,
+        error,
+        roomClosed,
+        openRoom,
+        startNextQuestion,
+    } = useHost();
+    const [ready, setReady] = useState(false);
+    const [notice, setNotice] = useState<string | null>(null);
+    const roomRequested = useRef(false);
+
+    useHostNavigation(ready ? snapshot?.state : undefined);
+
+    useEffect(() => {
+        if (!roomClosed) return;
+        setNotice(
+            "Your previous room was closed because you were away for too long. Here is a new one.",
+        );
+        openRoom();
+    }, [roomClosed, openRoom]);
+
+    useEffect(() => {
+        if (roomRequested.current) return;
+        roomRequested.current = true;
+        openRoom().then(() => setReady(true));
+    }, [openRoom]);
+
+    const players = snapshot?.onlinePlayers ?? [];
+    const started = snapshot !== null && snapshot.state !== "WAITING";
+    const joinUrl = game
+        ? `${window.location.origin}/JoinQuiz/${game.gameCode}`
+        : "";
+
+    return (
+        <main className="page">
+            <Header />
+
+            <div className="page-content room-content">
+                <h1 className="page-title room-title">Create a Room</h1>
+
+                {notice && !error && (
+                    <p className="alert alert-info" role="status">
+                        {notice}
+                    </p>
+                )}
+
+                {error && !roomClosed && (
+                    <p className="alert" role="alert">
+                        {error}
+                    </p>
+                )}
+
+                {!error && (!game || !ready) && (
+                    <p className="room-loading">Creating the room…</p>
+                )}
+
+                {!error && game && ready && (
+                    <>
+                        <div className="room-code">
+                            <span className="label">Room code</span>
+                            <span className="room-code-value">
+                                {game.gameCode}
+                            </span>
+                        </div>
+
+                        <div className="room-qr">
+                            <QRCodeSVG
+                                value={joinUrl}
+                                size={256}
+                                bgColor="transparent"
+                                fgColor="currentColor"
+                                title={`Join room ${game.gameCode}`}
+                            />
+                        </div>
+
+                        <section
+                            className="room-players card"
+                            aria-labelledby="room-players-title"
+                        >
+                            <h2
+                                id="room-players-title"
+                                className="visually-hidden"
+                            >
+                                Players
+                            </h2>
+                            {players.length === 0 ? (
+                                <p className="room-players-empty">
+                                    Waiting for players…
+                                </p>
+                            ) : (
+                                <ul className="room-players-list scroll-list">
+                                    {players.map((player) => (
+                                        <li
+                                            key={player}
+                                            className="room-player"
+                                        >
+                                            {player}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </section>
+
+                        <p className="room-count" aria-live="polite">
+                            {players.length}{" "}
+                            {players.length === 1 ? "player" : "players"} online
+                        </p>
+
+                        <button
+                            type="button"
+                            className="button room-start"
+                            onClick={startNextQuestion}
+                            disabled={
+                                !connected || players.length === 0 || started
+                            }
+                        >
+                            {started ? "Started" : "Start"}
+                        </button>
+                    </>
+                )}
+            </div>
+
+            {connectionLost && (
+                <ConnectionNotice message="Connection lost, reconnecting… The room closes if you stay away too long." />
+            )}
+        </main>
+    );
+}

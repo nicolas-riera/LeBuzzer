@@ -1,0 +1,154 @@
+.buzzer {
+    position: relative;
+    width: clamp(80px, 16vh, 120px);
+    height: clamp(80px, 16vh, 120px);
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.buzzer-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    transition:
+        transform 0.1s ease,
+        filter 0.2s ease;
+}
+
+.buzzer:active:not(:disabled) .buzzer-image {
+    transform: translateY(6px) scale(0.94);
+}
+
+.buzzer-pressed .buzzer-image {
+    transform: translateY(6px) scale(0.94);
+    filter: brightness(0.4) saturate(0.6);
+}
+
+.buzzer-impact .buzzer-image {
+    animation: buzzer-slam 0.5s ease-out;
+}
+
+.buzzer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 4px solid var(--buzzer-color);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.buzzer-impact::after {
+    animation: buzzer-shockwave 0.6s ease-out;
+}
+
+.page-buzzed .page-content {
+    animation: page-shake 0.3s ease;
+}
+
+.buzz-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    background: radial-gradient(
+        circle at 50% 80%,
+        transparent 10%,
+        rgba(0, 0, 0, 0.85) 70%
+    );
+    opacity: 0;
+    pointer-events: none;
+    animation: buzz-flash 0.8s ease-out;
+}
+
+.buzzer:disabled {
+    cursor: not-allowed;
+}
+
+.buzzer:disabled:not(.buzzer-pressed) .buzzer-image {
+    filter: saturate(0.4) brightness(0.8);
+}
+
+.buzzer:focus-visible {
+    outline: 3px solid var(--title-color);
+    outline-offset: 4px;
+}
+
+@media (hover: hover) {
+    .buzzer:hover:not(:disabled) .buzzer-image {
+        filter: brightness(1.1);
+        transform: scale(1.04);
+    }
+}
+
+@media (min-width: 768px) {
+    .buzzer {
+        width: clamp(96px, 17vh, 150px);
+        height: clamp(96px, 17vh, 150px);
+    }
+}
+
+@keyframes buzzer-slam {
+    0% {
+        transform: scale(1);
+        filter: brightness(1.4);
+    }
+
+    25% {
+        transform: translateY(12px) scale(0.8);
+        filter: brightness(1.6);
+    }
+
+    55% {
+        transform: translateY(4px) scale(0.98);
+    }
+}
+
+@keyframes buzzer-shockwave {
+    from {
+        opacity: 0.9;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(2.4);
+    }
+}
+
+@keyframes page-shake {
+    20% {
+        transform: translate(-4px, 2px);
+    }
+
+    40% {
+        transform: translate(4px, -2px);
+    }
+
+    60% {
+        transform: translate(-2px, 1px);
+    }
+
+    80% {
+        transform: translate(2px, 0);
+    }
+}
+
+@keyframes buzz-flash {
+    15% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .buzzer-impact .buzzer-image,
+    .buzzer-impact::after,
+    .page-buzzed .page-content,
+    .buzz-flash {
+        animation: none;
+    }
+}

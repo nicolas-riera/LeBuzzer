@@ -1,0 +1,32 @@
+.timer {
+    min-width: 3.5ch;
+    font-family: var(--title-font);
+    font-size: 1.4rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--subtitle-color);
+    text-align: right;
+    transition: color 0.2s ease;
+}
+
+.timer-urgent {
+    color: var(--buzzer-color);
+    animation: timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@media (min-width: 768px) {
+    .timer {
+        font-size: 1.6rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .timer-urgent {
+        animation: none;
+    }
+}
