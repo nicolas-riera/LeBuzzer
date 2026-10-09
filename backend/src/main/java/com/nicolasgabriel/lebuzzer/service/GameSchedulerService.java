@@ -1,33 +1,45 @@
 package com.nicolasgabriel.lebuzzer.service;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.stereotype.Service;
-
-@Service
-public class GameSchedulerService {
-
-    private final ThreadPoolTaskScheduler scheduler;
+class GameSchedulerService {
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final Map<String, ScheduledFuture<?>> expirationTasks = new ConcurrentHashMap<>();
+    private final Map<String, ScheduledFuture<?>> closingTasks = new ConcurrentHashMap<>();
 
-    public GameSchedulerService() {
-        this.scheduler = new ThreadPoolTaskScheduler();
-        this.scheduler.setPoolSize(2);
-        this.scheduler.initialize();
+    void scheduleExpiration(String gameCode, long delayMillis, Runnable task) {
+        schedule(expirationTasks, gameCode, delayMillis, task);
     }
 
-    public void scheduleQuestionExpiration(String gameCode, int durationInSeconds, Runnable task) {
+    void cancelExpiration(String gameCode) {
+        cancel(expirationTasks, gameCode);
+    }
+
+    void scheduleClosing(String gameCode, long delayMillis, Runnable task) {
+        schedule(closingTasks, gameCode, delayMillis, task);
+    }
+
+    void cancelClosing(String gameCode) {
+        cancel(closingTasks, gameCode);
+    }
+
+    void cancelAll(String gameCode) {
         cancelExpiration(gameCode);
-        ScheduledFuture<?> future = scheduler.schedule(task, Instant.now().plusSeconds(durationInSeconds));
-        expirationTasks.put(gameCode, future);
+        cancelClosing(gameCode);
     }
 
-    public void cancelExpiration(String gameCode) {
-        ScheduledFuture<?> task = expirationTasks.remove(gameCode);
+    private void schedule(Map<String, ScheduledFuture<?>> tasks, String gameCode, long delayMillis, Runnable task) {
+        cancel(tasks, gameCode);
+        tasks.put(gameCode, executor.schedule(task, delayMillis, TimeUnit.MILLISECONDS));
+    }
+
+    private static void cancel(Map<String, ScheduledFuture<?>> tasks, String gameCode) {
+        ScheduledFuture<?> task = tasks.remove(gameCode);
         if (task != null) {
             task.cancel(false);
         }
