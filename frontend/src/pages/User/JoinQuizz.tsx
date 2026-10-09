@@ -82,7 +82,7 @@ export default function JoinQuizz() {
                     <input
                         id="join-nickname"
                         className="join-input"
-                        placeholder="Pseudo"
+                        placeholder="Name"
                         value={nickname}
                         onChange={(event) => setNickname(event.target.value)}
                         maxLength={NICKNAME_MAX_LENGTH}
