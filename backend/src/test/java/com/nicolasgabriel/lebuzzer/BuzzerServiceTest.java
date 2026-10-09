@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import com.nicolasgabriel.lebuzzer.dto.GameSnapshot;
 import com.nicolasgabriel.lebuzzer.dto.QuestionView;
+import com.nicolasgabriel.lebuzzer.dto.SubmittedAnswer;
 import com.nicolasgabriel.lebuzzer.enums.GameStates;
 import com.nicolasgabriel.lebuzzer.model.Game;
 import com.nicolasgabriel.lebuzzer.service.BuzzerService;
@@ -191,6 +192,44 @@ class BuzzerServiceTest {
         long second = buzzerService.getSnapshot(game.getGameCode()).sequence();
 
         assertTrue(second > first);
+    }
+
+    @Test
+    void shouldRestoreFirstAnswerAfterPlayerReloads() {
+        Game game = startedGameWithPlayers("Alice");
+        String code = game.getGameCode();
+        List<Integer> correct = game.getQuestionList().get(0).getCorrectAnswerIndices();
+        List<Integer> wrong = List.of(correct.contains(0) ? 1 : 0);
+        assertTrue(buzzerService.submitAnswer(code, "Alice-session", wrong));
+
+        buzzerService.disconnect("Alice-session");
+        buzzerService.joinGame(code, "Alice", "Alice-token", "Alice-reloaded");
+
+        assertFalse(buzzerService.submitAnswer(code, "Alice-reloaded", correct));
+        SubmittedAnswer answer = buzzerService.getPlayerAnswer(code, "Alice-reloaded").orElseThrow();
+        assertEquals(1, answer.questionNumber());
+        assertEquals(wrong, answer.selectedIndices());
+        assertEquals(0, answer.scoreBefore());
+    }
+
+    @Test
+    void shouldExposeScoreBeforeAnswerOnceQuestionIsClosed() {
+        Game game = startedGameWithPlayers("Alice");
+        String code = game.getGameCode();
+        List<Integer> correct = game.getQuestionList().get(0).getCorrectAnswerIndices();
+        buzzerService.submitAnswer(code, "Alice-session", correct);
+
+        buzzerService.closeQuestion(code, game.getHostToken());
+
+        assertTrue(buzzerService.getSnapshot(code).leaderboard().get(0).score() > 0);
+        assertEquals(0, buzzerService.getPlayerAnswer(code, "Alice-session").orElseThrow().scoreBefore());
+    }
+
+    @Test
+    void shouldHaveNoAnswerForPlayerWhoDidNotAnswer() {
+        Game game = startedGameWithPlayers("Alice");
+
+        assertTrue(buzzerService.getPlayerAnswer(game.getGameCode(), "Alice-session").isEmpty());
     }
 
     private Game startedGameWithPlayers(String... nicknames) {

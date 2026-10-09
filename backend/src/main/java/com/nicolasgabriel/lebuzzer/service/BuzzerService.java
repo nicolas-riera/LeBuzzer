@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import com.nicolasgabriel.lebuzzer.dto.GameSnapshot;
 import com.nicolasgabriel.lebuzzer.dto.LeaderboardEntry;
 import com.nicolasgabriel.lebuzzer.dto.QuestionView;
+import com.nicolasgabriel.lebuzzer.dto.SubmittedAnswer;
 import com.nicolasgabriel.lebuzzer.enums.GameStates;
 import com.nicolasgabriel.lebuzzer.enums.PlayerStates;
 import com.nicolasgabriel.lebuzzer.model.Game;
@@ -214,6 +215,30 @@ public class BuzzerService {
         }
     }
 
+    public Optional<SubmittedAnswer> getPlayerAnswer(String gameCode, String sessionId) {
+        Game game = requireGame(gameCode);
+        synchronized (game) {
+            GameStates state = game.getCurrentState();
+            if (state != GameStates.QUIZZING && state != GameStates.QUIZ_RESULTS
+                    && state != GameStates.LEADERBOARD) {
+                return Optional.empty();
+            }
+            return findPlayerBySession(game, sessionId).flatMap(player -> {
+                PlayerAnswer answer = game.getCurrentAnswers().get(player.getId());
+                if (answer == null) {
+                    return Optional.empty();
+                }
+                int scoreBefore = state == GameStates.QUIZZING
+                        ? player.getScore()
+                        : player.getScore() - answer.getPoints();
+                return Optional.of(new SubmittedAnswer(
+                        game.getCurrentQuestionIndex() + 1,
+                        answer.getSelectedOptionIndices(),
+                        scoreBefore));
+            });
+        }
+    }
+
     public Optional<String> disconnect(String sessionId) {
         String hostedGameCode = hostedGameCodeBySessionId.remove(sessionId);
         if (hostedGameCode != null) {
@@ -362,7 +387,8 @@ public class BuzzerService {
         for (Player player : game.getPlayerList()) {
             PlayerAnswer answer = game.getCurrentAnswers().get(player.getId());
             if (answer != null) {
-                player.setScore(player.getScore() + computePoints(game, question, answer));
+                answer.setPoints(computePoints(game, question, answer));
+                player.setScore(player.getScore() + answer.getPoints());
             }
         }
         game.setCurrentState(GameStates.QUIZ_RESULTS);

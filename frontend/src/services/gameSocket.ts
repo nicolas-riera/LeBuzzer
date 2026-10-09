@@ -1,7 +1,11 @@
 import { Client, ReconnectionTimeMode } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { getSnapshot } from "./gameApi";
-import type { GameSnapshot, JoinedPlayer } from "../types/game";
+import type {
+    GameSnapshot,
+    JoinedPlayer,
+    SubmittedAnswer,
+} from "../types/game";
 
 const FIRST_RECONNECT_DELAY_MILLIS = 1000;
 const MAX_RECONNECT_DELAY_MILLIS = 30000;
@@ -13,6 +17,7 @@ export type HostAction =
 interface GameSocketHandlers {
     onSnapshot: (snapshot: GameSnapshot) => void;
     onPlayerJoined?: (player: JoinedPlayer) => void;
+    onAnswer?: (answer: SubmittedAnswer) => void;
     onClosed?: () => void;
     onConnectionChange?: (connected: boolean) => void;
 }
@@ -43,6 +48,12 @@ export function connectToGame(
                         onPlayerJoined(JSON.parse(message.body));
                     },
                 );
+            }
+            if (handlers.onAnswer) {
+                const onAnswer = handlers.onAnswer;
+                client.subscribe("/user/queue/answer", (message) => {
+                    onAnswer(JSON.parse(message.body));
+                });
             }
             if (handlers.onClosed) {
                 const onClosed = handlers.onClosed;

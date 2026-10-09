@@ -175,6 +175,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
                         });
                         resolve();
                     },
+                    onAnswer: (next) => {
+                        if (isCurrent()) setAnswer(next);
+                    },
                     onClosed: () => {
                         clearPlayerSession();
                         if (!joined) {

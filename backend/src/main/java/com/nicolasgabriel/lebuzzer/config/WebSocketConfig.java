@@ -20,7 +20,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         heartbeatScheduler.setThreadNamePrefix("ws-heartbeat-");
         heartbeatScheduler.initialize();
 
-        config.enableSimpleBroker("/topic")
+        config.enableSimpleBroker("/topic", "/queue")
                 .setHeartbeatValue(new long[] { HEARTBEAT_MILLIS, HEARTBEAT_MILLIS })
                 .setTaskScheduler(heartbeatScheduler);
         config.setApplicationDestinationPrefixes("/app");
@@ -29,5 +29,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
+        registry.setPreserveReceiveOrder(true);
     }
 }

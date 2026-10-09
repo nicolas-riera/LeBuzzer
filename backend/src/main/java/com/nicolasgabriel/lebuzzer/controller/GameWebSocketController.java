@@ -7,6 +7,8 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -57,6 +59,7 @@ public class GameWebSocketController {
         messagingTemplate.convertAndSend("/topic/game/" + gameCode + "/player-joined",
                 new JoinedPlayer(player.getId(), player.getScore()));
         broadcastSnapshot(gameCode);
+        sendAnswerToPlayer(gameCode, sessionId);
     }
 
     @MessageMapping("/game/{gameCode}/start-next-question")
@@ -77,6 +80,7 @@ public class GameWebSocketController {
         if (accepted) {
             broadcastSnapshot(gameCode);
         }
+        sendAnswerToPlayer(gameCode, sessionId);
     }
 
     @MessageMapping("/game/{gameCode}/close-question")
@@ -98,6 +102,16 @@ public class GameWebSocketController {
             @Header("hostToken") String hostToken) {
         buzzerService.finishGame(gameCode, hostToken);
         broadcastSnapshot(gameCode);
+    }
+
+    private void sendAnswerToPlayer(String gameCode, String sessionId) {
+        buzzerService.getPlayerAnswer(gameCode, sessionId).ifPresent(answer -> {
+            SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+            headers.setSessionId(sessionId);
+            headers.setLeaveMutable(true);
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/answer", answer,
+                    headers.getMessageHeaders());
+        });
     }
 
     private void broadcastSnapshot(String gameCode) {
