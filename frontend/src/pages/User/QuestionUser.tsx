@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import QuestionHeading from "../../components/QuestionHeading";
 import Timer from "../../components/Timer";
 import { useGame } from "../../context/GameContext";
+import { vibrateBuzz } from "../../utils/haptics";
 import "../../styles/Play.css";
 import "../../styles/QuestionUser.css";
 
@@ -41,7 +42,7 @@ export default function QuestionUser() {
         if (!question || selected.length === 0 || submitted) return;
         submitAnswer(selected);
         setBuzzedQuestion(question.number);
-        navigator.vibrate?.(80);
+        vibrateBuzz();
     }
 
     const status = submitted
