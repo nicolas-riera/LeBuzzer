@@ -4,9 +4,9 @@ import ConnectionNotice from "../../components/ConnectionNotice";
 import Header from "../../components/Header";
 import { useHost } from "../../context/HostContext";
 import { useHostNavigation } from "../../hooks/useGameNavigation";
-import "../../styles/CreateQuizz.css";
+import "../../styles/CreateQuiz.css";
 
-export default function CreateQuizz() {
+export default function CreateQuiz() {
     const {
         game,
         snapshot,
@@ -40,7 +40,7 @@ export default function CreateQuizz() {
     const players = snapshot?.onlinePlayers ?? [];
     const started = snapshot !== null && snapshot.state !== "WAITING";
     const joinUrl = game
-        ? `${window.location.origin}/JoinQuizz/${game.gameCode}`
+        ? `${window.location.origin}/JoinQuiz/${game.gameCode}`
         : "";
 
     return (

@@ -3,12 +3,12 @@ import type { SubmitEvent } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import Header from "../../components/Header";
 import { useGame } from "../../context/GameContext";
-import "../../styles/JoinQuizz.css";
+import "../../styles/JoinQuiz.css";
 
 const CODE_LENGTH = 5;
 const NICKNAME_MAX_LENGTH = 20;
 
-export default function JoinQuizz() {
+export default function JoinQuiz() {
     const { gameCode: codeFromUrl } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -34,7 +34,7 @@ export default function JoinQuizz() {
         setError(null);
         try {
             await join(code, nickname);
-            navigate(`/WaitingQuizz/${code}`);
+            navigate(`/WaitingQuiz/${code}`);
         } catch (joinError) {
             setError(
                 joinError instanceof Error

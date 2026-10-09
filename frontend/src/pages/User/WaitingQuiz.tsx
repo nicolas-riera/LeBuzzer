@@ -1,8 +1,8 @@
 import Header from "../../components/Header";
 import { useGame } from "../../context/GameContext";
-import "../../styles/WaitingQuizz.css";
+import "../../styles/WaitingQuiz.css";
 
-export default function WaitingQuizz() {
+export default function WaitingQuiz() {
     const { session, snapshot } = useGame();
 
     if (!session) return null;
@@ -11,14 +11,14 @@ export default function WaitingQuizz() {
 
     return (
         <main className="page">
-            <Header />
+            <Header gameCode={session.gameCode} />
 
             <div className="page-content waiting-content">
                 <h1 className="page-title">You're in!</h1>
 
                 <div className="waiting-card card">
+                    <span className="label">Playing as</span>
                     <span className="waiting-nickname">{session.nickname}</span>
-                    <span className="label">Room {session.gameCode}</span>
                 </div>
 
                 <p className="waiting-status" aria-live="polite">

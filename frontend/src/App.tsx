@@ -5,15 +5,15 @@ import { GameProvider } from "./context/GameContext";
 import { HostProvider } from "./context/HostContext";
 import HomePage from "./pages/HomePage";
 import AnswerHost from "./pages/Host/AnswerHost";
-import CreateQuizz from "./pages/Host/CreateQuizz";
+import CreateQuiz from "./pages/Host/CreateQuiz";
 import GameOverHost from "./pages/Host/GameOverHost";
 import LeaderboardHost from "./pages/Host/LeaderboardHost";
 import QuestionHost from "./pages/Host/QuestionHost";
 import AnswerUser from "./pages/User/AnswerUser";
 import GameOverUser from "./pages/User/GameOverUser";
-import JoinQuizz from "./pages/User/JoinQuizz";
+import JoinQuiz from "./pages/User/JoinQuiz";
 import QuestionUser from "./pages/User/QuestionUser";
-import WaitingQuizz from "./pages/User/WaitingQuizz";
+import WaitingQuiz from "./pages/User/WaitingQuiz";
 
 export default function App() {
     return (
@@ -22,7 +22,7 @@ export default function App() {
                 <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<HomePage />} />
-                        <Route path="/CreateQuizz" element={<CreateQuizz />} />
+                        <Route path="/CreateQuiz" element={<CreateQuiz />} />
                         <Route
                             path="/QuestionHost"
                             element={
@@ -56,14 +56,14 @@ export default function App() {
                             }
                         />
                         <Route
-                            path="/JoinQuizz/:gameCode?"
-                            element={<JoinQuizz />}
+                            path="/JoinQuiz/:gameCode?"
+                            element={<JoinQuiz />}
                         />
                         <Route
-                            path="/WaitingQuizz/:gameCode"
+                            path="/WaitingQuiz/:gameCode"
                             element={
                                 <RequirePlayer>
-                                    <WaitingQuizz />
+                                    <WaitingQuiz />
                                 </RequirePlayer>
                             }
                         />

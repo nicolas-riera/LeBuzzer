@@ -34,10 +34,10 @@ export default function HomePage() {
             <Header />
 
             <section className="home-actions">
-                <Link to="/CreateQuizz" className="button home-button">
+                <Link to="/CreateQuiz" className="button home-button">
                     Create
                 </Link>
-                <Link to="/JoinQuizz" className="button home-button">
+                <Link to="/JoinQuiz" className="button home-button">
                     Join
                 </Link>
             </section>

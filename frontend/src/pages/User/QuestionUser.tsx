@@ -13,17 +13,19 @@ interface Selection {
 }
 
 export default function QuestionUser() {
-    const { snapshot, answer, submitAnswer } = useGame();
+    const { session, snapshot, answer, submitAnswer } = useGame();
     const [selection, setSelection] = useState<Selection | null>(null);
+    const [buzzedQuestion, setBuzzedQuestion] = useState<number | null>(null);
     const question = snapshot?.currentQuestion;
 
-    if (!snapshot || !question) return null;
+    if (!session || !snapshot || !question) return null;
 
     const submitted =
         answer?.questionNumber === question.number ? answer : null;
     const selected =
         selection?.questionNumber === question.number ? selection.indices : [];
     const shown = submitted ? submitted.selectedIndices : selected;
+    const buzzed = buzzedQuestion === question.number;
 
     function toggle(index: number) {
         if (!question) return;
@@ -36,8 +38,10 @@ export default function QuestionUser() {
     }
 
     function buzz() {
-        if (selected.length === 0 || submitted) return;
+        if (!question || selected.length === 0 || submitted) return;
         submitAnswer(selected);
+        setBuzzedQuestion(question.number);
+        navigator.vibrate?.(80);
     }
 
     const status = submitted
@@ -49,8 +53,12 @@ export default function QuestionUser() {
           : "Buzz to lock in your answer!";
 
     return (
-        <main className="page page-narrow">
-            <Header>
+        <main
+            className={
+                buzzed ? "page page-narrow page-buzzed" : "page page-narrow"
+            }
+        >
+            <Header gameCode={session.gameCode}>
                 <Timer snapshot={snapshot} />
             </Header>
 
@@ -67,9 +75,13 @@ export default function QuestionUser() {
                 <div className="play-footer">
                     <button
                         type="button"
-                        className={
-                            submitted ? "buzzer buzzer-pressed" : "buzzer"
-                        }
+                        className={[
+                            "buzzer",
+                            submitted && "buzzer-pressed",
+                            buzzed && "buzzer-impact",
+                        ]
+                            .filter(Boolean)
+                            .join(" ")}
                         onClick={buzz}
                         disabled={submitted !== null || selected.length === 0}
                         aria-label="Buzz to send your answer"
@@ -86,6 +98,8 @@ export default function QuestionUser() {
                     </p>
                 </div>
             </div>
+
+            {buzzed && <div className="buzz-flash" aria-hidden="true" />}
         </main>
     );
 }

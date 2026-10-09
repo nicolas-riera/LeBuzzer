@@ -13,7 +13,7 @@ export default function AnswerHost() {
 
     return (
         <main className="page page-narrow">
-            <Header />
+            <Header gameCode={snapshot.gameCode} />
 
             <div className="page-content">
                 <QuestionHeading question={question} />

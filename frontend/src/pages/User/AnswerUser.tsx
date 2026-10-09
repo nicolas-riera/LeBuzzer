@@ -64,7 +64,7 @@ export default function AnswerUser() {
 
     return (
         <main className="page page-narrow">
-            <Header />
+            <Header gameCode={session.gameCode} />
 
             <div className="page-content">
                 {snapshot.currentQuestion && (

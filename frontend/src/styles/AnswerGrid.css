@@ -27,6 +27,7 @@
     transition:
         transform 0.15s ease,
         opacity 0.2s ease,
+        filter 0.3s ease,
         box-shadow 0.15s ease;
 }
 
@@ -71,6 +72,14 @@ button.answer-tile:disabled {
     opacity: 0.55;
 }
 
+.answer-grid-locked .answer-tile:not(.answer-tile-selected) {
+    filter: brightness(0.4) saturate(0.6);
+}
+
+.answer-grid-locked .answer-tile-selected {
+    animation: answer-lock 0.35s ease;
+}
+
 .answer-mark {
     position: absolute;
     right: var(--spacing-s);
@@ -82,6 +91,12 @@ button.answer-tile:disabled {
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+
+@keyframes answer-lock {
+    40% {
+        transform: scale(1.05);
+    }
 }
 
 @media (hover: hover) {
@@ -103,5 +118,11 @@ button.answer-tile:disabled {
     .answer-mark {
         width: 28px;
         height: 28px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .answer-grid-locked .answer-tile-selected {
+        animation: none;
     }
 }

@@ -21,7 +21,7 @@ export default function RequireHost({ children }: { children: ReactNode }) {
     }, [game, resumeRoom]);
 
     if (error) {
-        return <Navigate to="/CreateQuizz" replace />;
+        return <Navigate to="/CreateQuiz" replace />;
     }
 
     if (!game || !snapshot) {

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import type { GameState } from "../types/game";
 
 const HOST_ROUTES: Partial<Record<GameState, string>> = {
-    WAITING: "/CreateQuizz",
+    WAITING: "/CreateQuiz",
     QUIZZING: "/QuestionHost",
     QUIZ_RESULTS: "/AnswerHost",
     LEADERBOARD: "/LeaderboardHost",
@@ -11,7 +11,7 @@ const HOST_ROUTES: Partial<Record<GameState, string>> = {
 };
 
 const PLAYER_ROUTES: Partial<Record<GameState, string>> = {
-    WAITING: "/WaitingQuizz",
+    WAITING: "/WaitingQuiz",
     QUIZZING: "/QuestionUser",
     QUIZ_RESULTS: "/AnswerUser",
     LEADERBOARD: "/AnswerUser",

@@ -28,7 +28,7 @@ export default function RequirePlayer({ children }: { children: ReactNode }) {
     if (closedGameCode === code) {
         return (
             <Navigate
-                to="/JoinQuizz"
+                to="/JoinQuiz"
                 replace
                 state={{
                     error: "The host was away for too long: the room has been closed.",
@@ -41,7 +41,7 @@ export default function RequirePlayer({ children }: { children: ReactNode }) {
         if (canResume && !resumeFailed) {
             return <ConnectionNotice message="Reconnecting to your game…" />;
         }
-        return <Navigate to={`/JoinQuizz/${gameCode}`} replace />;
+        return <Navigate to={`/JoinQuiz/${gameCode}`} replace />;
     }
 
     const finished = snapshot?.state === "FINISHED";

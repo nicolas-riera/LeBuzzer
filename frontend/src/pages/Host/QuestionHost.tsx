@@ -13,7 +13,7 @@ export default function QuestionHost() {
 
     return (
         <main className="page page-narrow">
-            <Header>
+            <Header gameCode={snapshot.gameCode}>
                 <Timer snapshot={snapshot} />
             </Header>
 

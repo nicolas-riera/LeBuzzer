@@ -14,7 +14,7 @@ export default function LeaderboardHost() {
 
     return (
         <main className="page page-narrow">
-            <Header />
+            <Header gameCode={snapshot.gameCode} />
 
             <div className="page-content">
                 <div className="play-heading">

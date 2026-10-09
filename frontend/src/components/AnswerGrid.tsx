@@ -34,7 +34,11 @@ export default function AnswerGrid({
     onToggle,
 }: AnswerGridProps) {
     return (
-        <ul className="answer-grid">
+        <ul
+            className={
+                disabled ? "answer-grid answer-grid-locked" : "answer-grid"
+            }
+        >
             {options.map((option, index) => {
                 const isSelected = selected.includes(index);
                 const isCorrect = correct?.includes(index) ?? false;
