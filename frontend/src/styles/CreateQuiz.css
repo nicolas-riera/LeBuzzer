@@ -1,0 +1,136 @@
+.room-content {
+    text-align: center;
+}
+
+.room-code {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.room-code-value {
+    margin-right: -0.25em;
+    font-family: var(--title-font);
+    font-size: 2rem;
+    letter-spacing: 0.25em;
+    user-select: all;
+}
+
+.room-qr {
+    width: clamp(110px, 20vh, 160px);
+    padding: var(--spacing-s);
+    border-radius: var(--radius-small);
+    background-color: var(--button-color);
+    color: var(--background-color);
+    line-height: 0;
+}
+
+.room-qr svg {
+    width: 100%;
+    height: auto;
+}
+
+.room-players {
+    width: 100%;
+    max-width: 280px;
+}
+
+.room-players-list {
+    max-height: clamp(96px, 25vh, 220px);
+}
+
+.room-player {
+    padding: var(--spacing-s);
+    animation: room-player-in 0.3s ease;
+}
+
+.room-player + .room-player {
+    border-top: 1px solid var(--border-color);
+}
+
+.room-players-empty {
+    margin: 0;
+    padding: var(--spacing-l) var(--spacing-m);
+    opacity: 0.7;
+}
+
+.room-count {
+    margin: 0;
+    color: var(--title-color);
+}
+
+.room-start {
+    min-width: 160px;
+    margin-top: auto;
+}
+
+@keyframes room-player-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+@media (min-width: 768px) {
+    .room-content {
+        display: grid;
+        grid-template-columns: 1fr minmax(260px, 320px) 1fr;
+        grid-template-rows: auto auto 1fr auto;
+        grid-template-areas:
+            "title title   title"
+            "code  .       qr"
+            ".     players ."
+            ".     start   count";
+        align-items: center;
+        justify-items: center;
+    }
+
+    .room-title {
+        grid-area: title;
+    }
+
+    .room-content > .alert,
+    .room-loading {
+        grid-column: 1 / -1;
+    }
+
+    .room-code {
+        grid-area: code;
+    }
+
+    .room-code-value {
+        font-size: 2.5rem;
+    }
+
+    .room-qr {
+        grid-area: qr;
+        width: clamp(120px, 22vh, 180px);
+    }
+
+    .room-players {
+        grid-area: players;
+        align-self: start;
+        max-width: none;
+    }
+
+    .room-players-list {
+        max-height: clamp(120px, 30vh, 260px);
+    }
+
+    .room-start {
+        grid-area: start;
+        width: 100%;
+        margin-top: 0;
+    }
+
+    .room-count {
+        grid-area: count;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .room-player {
+        animation: none;
+    }
+}

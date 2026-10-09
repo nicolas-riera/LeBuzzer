@@ -1,0 +1,62 @@
+.gameover-title {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.gameover-result {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-m);
+    text-align: center;
+}
+
+.gameover-rank {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.gameover-rank strong {
+    font-family: var(--title-font);
+    font-weight: normal;
+    font-size: clamp(2.5rem, 9vh, 5rem);
+    line-height: 1;
+    color: var(--title-color);
+    animation: gameover-pop 0.5s ease;
+}
+
+.gameover-rank-detail {
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.gameover-score {
+    margin: 0;
+    padding: var(--spacing-s) var(--spacing-m);
+    font-size: 1.2rem;
+}
+
+@keyframes gameover-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+}
+
+@media (min-width: 768px) {
+    .gameover-rank {
+        font-size: 1.8rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gameover-rank strong {
+        animation: none;
+    }
+}

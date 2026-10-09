@@ -1,0 +1,140 @@
+.podium {
+    --podium-height: clamp(56px, 14vh, 120px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: var(--spacing-s);
+    width: 100%;
+    max-width: 420px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.podium-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-width: 0;
+}
+
+.podium-name,
+.ranking-name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.podium-name {
+    font-weight: 600;
+}
+
+.podium-score {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.podium-block {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding-top: var(--spacing-s);
+    border-radius: var(--radius-small) var(--radius-small) 0 0;
+    color: var(--background-color);
+    font-family: var(--title-font);
+    font-size: 1.6rem;
+    transform-origin: bottom;
+    animation: podium-rise 0.6s ease backwards;
+}
+
+.podium-place-1 {
+    order: 2;
+}
+
+.podium-place-1 .podium-block {
+    height: var(--podium-height);
+    background-color: var(--title-color);
+    animation-delay: 0.6s;
+}
+
+.podium-place-2 {
+    order: 1;
+}
+
+.podium-place-2 .podium-block {
+    height: calc(var(--podium-height) * 0.73);
+    background-color: var(--subtitle-color);
+    animation-delay: 0.3s;
+}
+
+.podium-place-3 {
+    order: 3;
+}
+
+.podium-place-3 .podium-block {
+    height: calc(var(--podium-height) * 0.53);
+    background-color: var(--response-yellow);
+}
+
+.ranking-list {
+    width: 100%;
+    max-width: 420px;
+    max-height: clamp(96px, 22vh, 220px);
+}
+
+.ranking-row {
+    display: grid;
+    grid-template-columns: 3ch 1fr auto;
+    align-items: center;
+    gap: var(--spacing-m);
+    padding: var(--spacing-s);
+}
+
+.ranking-row + .ranking-row {
+    border-top: 1px solid var(--border-color);
+}
+
+.ranking-rank {
+    font-family: var(--title-font);
+    opacity: 0.7;
+}
+
+.ranking-score {
+    color: var(--title-color);
+}
+
+.leaderboard-empty {
+    flex: 1;
+    margin: 0;
+    opacity: 0.7;
+}
+
+@keyframes podium-rise {
+    from {
+        transform: scaleY(0);
+    }
+}
+
+@media (min-width: 768px) {
+    .podium {
+        --podium-height: clamp(72px, 18vh, 160px);
+    }
+
+    .podium,
+    .ranking-list {
+        max-width: 560px;
+    }
+
+    .ranking-list {
+        max-height: clamp(120px, 26vh, 260px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .podium-block {
+        animation: none;
+    }
+}

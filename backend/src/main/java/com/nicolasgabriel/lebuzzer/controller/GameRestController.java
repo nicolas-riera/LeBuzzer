@@ -35,7 +35,7 @@ public class GameRestController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleNotFound(IllegalArgumentException ex) {
+    public ResponseEntity<Void> handleUnknownGame() {
         return ResponseEntity.notFound().build();
     }
 }

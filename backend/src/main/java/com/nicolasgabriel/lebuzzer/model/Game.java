@@ -11,12 +11,14 @@ import com.nicolasgabriel.lebuzzer.enums.GameStates;
 public class Game {
     private String gameCode;
     private String hostToken;
+    private String hostSessionId;
     private GameStates currentState;
     private LocalDateTime questionStartTime;
     private int currentQuestionIndex;
     private List<Player> playerList;
     private List<Question> questionList;
     private Map<String, PlayerAnswer> currentAnswers;
+    private long snapshotSequence;
 
     public Game(String gameCode) {
         this(gameCode, null);
@@ -37,6 +39,18 @@ public class Game {
 
     public void setHostToken(String hostToken) {
         this.hostToken = hostToken;
+    }
+
+    public long nextSnapshotSequence() {
+        return ++snapshotSequence;
+    }
+
+    public String getHostSessionId() {
+        return hostSessionId;
+    }
+
+    public void setHostSessionId(String hostSessionId) {
+        this.hostSessionId = hostSessionId;
     }
 
     public int getCurrentQuestionIndex() {

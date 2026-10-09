@@ -9,12 +9,21 @@ public class PlayerAnswer {
     private int questionId;
     private List<Integer> selectedOptionIndices;
     private LocalDateTime timestamp;
+    private int points;
 
     public PlayerAnswer(String playerId, int questionId, List<Integer> selectedOptionIndices) {
         this.playerId = playerId;
         this.questionId = questionId;
         this.selectedOptionIndices = selectedOptionIndices != null ? selectedOptionIndices : new ArrayList<>();
         this.timestamp = LocalDateTime.now();
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 
     public String getPlayerId() {

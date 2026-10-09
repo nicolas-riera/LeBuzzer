@@ -19,7 +19,7 @@ public class QuestionCatalog {
         "What is the standard port number used for HTTPS traffic?",
         Arrays.asList("80", "21", "443", "8080"),
         Arrays.asList(2),
-        15
+        20
     );
 
     public static final Question Q_JAVA_CREATOR = new Question(
@@ -27,7 +27,7 @@ public class QuestionCatalog {
         "Which programming language was created by James Gosling at Sun Microsystems?",
         Arrays.asList("Python", "Java", "C++", "C#"),
         Arrays.asList(1),
-        15
+        25
     );
 
     public static final Question Q_PRIME_NUMBERS = new Question(

@@ -42,7 +42,7 @@ class GameRestControllerTest {
     @Test
     void shouldGetSnapshot() throws Exception {
         GameSnapshot mockSnapshot = new GameSnapshot(
-                "ABCDE", GameStates.WAITING, List.of(), null, 0, 0, null, List.of()
+                "ABCDE", GameStates.WAITING, List.of(), null, 0, 0, null, List.of(), true, 1
         );
         given(buzzerService.getSnapshot("ABCDE")).willReturn(mockSnapshot);
 
@@ -50,5 +50,13 @@ class GameRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.gameCode").value("ABCDE"))
                 .andExpect(jsonPath("$.state").value("WAITING"));
+    }
+
+    @Test
+    void shouldReturnNotFoundForUnknownGame() throws Exception {
+        given(buzzerService.getSnapshot("ZZZZZ")).willThrow(new IllegalArgumentException("Unknown game code"));
+
+        mockMvc.perform(get("/api/games/ZZZZZ/snapshot"))
+                .andExpect(status().isNotFound());
     }
 }
