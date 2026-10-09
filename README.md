@@ -4,6 +4,8 @@ A real-time quiz game where the fastest buzzer wins.
 
 ## Presentation
 
+<img width="1446" height="993" alt="image" src="https://github.com/user-attachments/assets/3a76a8dd-77d8-4525-9593-1c881c9d69b0" />
+
 LeBuzzer is a full-stack school project consisting of a multiplayer quiz web application, in the spirit of Kahoot. A host creates a room and displays the questions on a shared screen, while players join from their phone and answer as fast as they can. It pairs a Spring Boot backend communicating over WebSockets with a modern web frontend.
 
 ### Key Features
